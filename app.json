@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Queens Game",
-    "slug": "queens-game",
+    "slug": "queensgame",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -74,7 +74,7 @@
     "permissions": [
       "VIBRATE"
     ],
-    "owner": "queensgame",
+    "owner": "ranjith23",
     "projectId": "fa5358c5-8446-481c-9a50-bd3d530dd6f8",
     "runtimeVersion": {
       "policy": "sdkVersion"

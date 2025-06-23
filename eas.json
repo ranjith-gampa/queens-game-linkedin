@@ -66,10 +66,7 @@
       "ios": {
         "appleId": "${APPLE_ID}",
         "ascAppId": "${ASC_APP_ID}",
-        "appleTeamId": "${APPLE_TEAM_ID}",
-        "complianceInfo": {
-          "usesIDFA": false
-        }
+        "appleTeamId": "${APPLE_TEAM_ID}"
       }
     },
     "preview": {
@@ -80,20 +77,8 @@
       "ios": {
         "appleId": "${APPLE_ID}",
         "ascAppId": "${ASC_APP_ID}",
-        "appleTeamId": "${APPLE_TEAM_ID}",
-        "betaGroups": ["Testers", "Developers"]
+        "appleTeamId": "${APPLE_TEAM_ID}"
       }
-    }
-  },
-  "updates": {
-    "url": "https://u.expo.dev/fa5358c5-8446-481c-9a50-bd3d530dd6f8",
-    "fallbackToCacheTimeout": 0,
-    "enabled": true,
-    "checkAutomatically": "ON_LOAD",
-    "codeSigningCertificate": "./certs/production-cert.pem",
-    "codeSigningMetadata": {
-      "alg": "rsa-v1_5-sha256",
-      "keyid": "production-v1"
     }
   }
 }
