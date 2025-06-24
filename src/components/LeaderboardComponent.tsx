@@ -60,26 +60,29 @@ const LeaderboardComponent = () => {
   };
 
   return (
-    <div className="mt-8 p-4 bg-card rounded-lg shadow">
+    <div className="mt-8 p-2 sm:p-4 bg-card rounded-lg shadow">
       <h2 className="text-2xl font-bold mb-4">Leaderboard</h2>
       
       {/* Tab navigation */}
-      <div className="flex space-x-2 mb-4">
+      <div className="flex flex-wrap gap-2 mb-4">
         <Button 
           variant={activeTab === "regular" ? "default" : "outline"}
           onClick={() => setActiveTab("regular")}
+          className="text-sm"
         >
           Regular Levels
         </Button>
         <Button 
           variant={activeTab === "bonus" ? "default" : "outline"}
           onClick={() => setActiveTab("bonus")}
+          className="text-sm"
         >
           Bonus Levels
         </Button>
         <Button 
           variant={activeTab === "community" ? "default" : "outline"}
           onClick={() => setActiveTab("community")}
+          className="text-sm"
         >
           Community Levels
         </Button>
@@ -89,30 +92,30 @@ const LeaderboardComponent = () => {
       {isLoading ? (
         <div className="text-center py-8">Loading...</div>
       ) : leaderboardData.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-border">
-            <thead>
+        <div className="overflow-x-auto w-full max-w-full">
+          <table className="w-full min-w-[500px] divide-y divide-border">
+            <thead className="bg-muted/50">
               <tr>
-                <th className="px-4 py-2 text-left">Rank</th>
-                <th className="px-4 py-2 text-left">Player</th>
-                <th className="px-4 py-2 text-left">Level</th>
-                <th className="px-4 py-2 text-left">Time</th>
-                <th className="px-4 py-2 text-left">Date</th>
+                <th className="px-2 py-2 text-left text-xs sm:text-sm sm:px-4">Rank</th>
+                <th className="px-2 py-2 text-left text-xs sm:text-sm sm:px-4">Player</th>
+                <th className="px-2 py-2 text-left text-xs sm:text-sm sm:px-4">Level</th>
+                <th className="px-2 py-2 text-left text-xs sm:text-sm sm:px-4">Time</th>
+                <th className="px-2 py-2 text-left text-xs sm:text-sm sm:px-4">Date</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {leaderboardData.map((entry, index) => (
                 <tr key={`${entry.id}-${entry.timestamp}`} className="hover:bg-muted/50">
-                  <td className="px-4 py-3">{index + 1}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-2 py-2 sm:px-4 sm:py-3">{index + 1}</td>
+                  <td className="px-2 py-2 sm:px-4 sm:py-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-xl">{entry.avatar}</span>
-                      <span>{entry.username}</span>
+                      <span className="text-lg sm:text-xl">{entry.avatar}</span>
+                      <span className="text-sm sm:text-base truncate max-w-[100px] sm:max-w-[150px] md:max-w-[200px]">{entry.username}</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3">{entry.id}</td>
-                  <td className="px-4 py-3">{formatDuration(entry.time)}</td>
-                  <td className="px-4 py-3">{formatDate(entry.timestamp)}</td>
+                  <td className="px-2 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm md:text-base">{entry.id}</td>
+                  <td className="px-2 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm md:text-base">{formatDuration(entry.time)}</td>
+                  <td className="px-2 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm md:text-base">{formatDate(entry.timestamp)}</td>
                 </tr>
               ))}
             </tbody>
