@@ -60,7 +60,7 @@ const LeaderboardComponent = () => {
   };
 
   return (
-    <div className="mt-8 p-2 sm:p-4 bg-card rounded-lg shadow">
+    <div className="mt-8 p-2 px-4 sm:p-4 bg-card rounded-lg shadow">
       <h2 className="text-2xl font-bold mb-4">Leaderboard</h2>
       
       {/* Tab navigation */}
