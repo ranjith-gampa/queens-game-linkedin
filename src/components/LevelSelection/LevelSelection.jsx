@@ -3,7 +3,7 @@ import LevelSelectionFilters from "./components/LevelSelectionFilters";
 import LevelsCollection from "./components/LevelsCollection";
 import LinkedInNote from "./components/LinkedInNote";
 import ResetAllProgressDialog from "./components/ResetAllProgressDialog";
-import LeaderboardComponent from "@/components/LeaderboardComponent";
+import Leaderboard from "@/components/Leaderboard/Leaderboard";
 import {
   getGroupingPreference,
   setGroupingPreference,
@@ -69,7 +69,7 @@ const LevelSelection = () => {
         resetTrigger={resetTrigger}
         className="mb-3"
       />
-      <LeaderboardComponent />
+      <Leaderboard />
       <LinkedInNote />
     </div>
   );

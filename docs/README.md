@@ -20,9 +20,8 @@ Detailed description of the features and game modes from a user perspective, inc
 
 If you need further assistance:
 
-- Visit the [GitHub repository](https://github.com/yourusername/queens-game)
-- Join our community on [Discord](https://discord.gg/queensgame)
-- Submit issues on the [Issue Tracker](https://github.com/yourusername/queens-game/issues)
+- Visit the [GitHub repository](https://github.com/ranjith-gampa/queens-game-linkedin)
+- Submit issues on the [Issue Tracker](https://github.com/ranjith-gampa/queens-game-linkedin/issues)
 
 ## Version Information
 

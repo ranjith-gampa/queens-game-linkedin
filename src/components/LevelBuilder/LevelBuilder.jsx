@@ -354,7 +354,7 @@ const LevelBuilder = () => {
         `Submitted via: Form Email Submission`
     );
 
-    return `mailto:mohammadsamimsu@gmail.com?subject=${subject}&body=${body}`;
+    return `mailto:ranjith.vf473@gmail.com?subject=${subject}&body=${body}`;
   };
 
   const createEmailContent = () => {
@@ -372,11 +372,11 @@ const LevelBuilder = () => {
         .join(", ")}\n\n` +
       `Submitted via: Form Email Submission (Copied)`;
 
-    return `To: mohammadsamimsu@gmail.com\n\nSubject: ${subject}\n\nContent:\n\n${body}`;
+    return `To: ranjith.vf473@gmail.com\n\nSubject: ${subject}\n\nContent:\n\n${body}`;
   };
 
   const submitToGitHub = async () => {
-    const GITHUB_REPO = "samimsu/queens-game-linkedin";
+    const GITHUB_REPO = "ranjith-gampa/queens-game-linkedin";
 
     try {
       setIsSubmitting(true);
