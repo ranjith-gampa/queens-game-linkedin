@@ -51,4 +51,4 @@ https://github.com/user-attachments/assets/9a7be10f-87c2-4311-a7bf-f0103581f569
 
 ## Original Author
 
-[Samisu-Queens-Game-Linked](https://github.com/samisu/queens-game-linkedin)
+[Samimsu-Queens-Game-Linked](https://github.com/samimsu/queens-game-linkedin)

@@ -4,7 +4,7 @@ import { useTheme } from "next-themes";
 
 const GithubStarButton = () => {
   const { theme } = useTheme();
-  const user = "samimsu";
+  const user = "ranjith-gampa";
   const repo = "queens-game-linkedin";
 
   return (
