@@ -1,4 +1,4 @@
-export const patreon = "https://www.patreon.com/c/Ranjith303";
+export const patreon = "https://www.patreon.com/c/Ranjith3037";
 export const portfolioSite = "https://github.com/ranjith-gampa";
 export const queensGameRepo = "https://github.com/ranjith-gampa/queens-game-linkedin";
 export const queensGameRepoNewLevelFile = `${queensGameRepo}/new/new-levels/src/utils/levels`;
