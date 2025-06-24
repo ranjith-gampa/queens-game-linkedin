@@ -1,5 +1,9 @@
 import { intervalToDuration } from "date-fns";
 
+/**
+ * Formats seconds into a human-readable duration string
+ * Exported both as default and named export for backward compatibility
+ */
 const formatDuration = (seconds: number) => {
   const duration = intervalToDuration({ start: 0, end: seconds * 1000 });
 
@@ -18,4 +22,6 @@ const formatDuration = (seconds: number) => {
   }
 };
 
+// Make available as both default export and named export for compatibility
+export { formatDuration };
 export default formatDuration;
