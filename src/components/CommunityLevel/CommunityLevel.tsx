@@ -221,6 +221,7 @@ const CommunityLevel = ({
                   text: t("NEXT_LEVEL"),
                 }}
                 close={() => setShowWinningScreen(false)}
+                levelId={id}
               />
             )}
             <Board

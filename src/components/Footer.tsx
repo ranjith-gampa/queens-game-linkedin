@@ -20,7 +20,7 @@ const Footer = () => {
             rel="noopener noreferrer"
             className="underline font-medium"
           >
-            Sami
+            Ranjith
           </a>
         </div>
       </div>

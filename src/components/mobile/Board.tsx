@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { View, StyleSheet, Dimensions } from "react-native";
 import Square from "./Square";
-import useGridSize from "../../../hooks/useGridSize";
 
 interface BoardProps {
   board: string[][];

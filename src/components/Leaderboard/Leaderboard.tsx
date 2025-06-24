@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import React, { useState, useEffect } from "react";
 import { getAllLevelCompletionTimes, getUserProfile } from "@/utils/localStorage";
 import { LevelCompletionTime } from "@/utils/types";
 import formatDuration from "@/utils/formatDuration";
@@ -9,7 +8,7 @@ interface LeaderboardData extends LevelCompletionTime {
   avatar: string;
 }
 
-const LeaderboardComponent = () => {
+const Leaderboard = () => {
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardData[]>([]);
   const [activeTab, setActiveTab] = useState<string>("regular");
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -56,75 +55,93 @@ const LeaderboardComponent = () => {
 
   // Function to format the date from timestamp
   const formatDate = (timestamp: number): string => {
+    // flex space-x-2 mb-4
     return new Date(timestamp).toLocaleDateString();
   };
 
   return (
-    <div className="mt-8 p-4 bg-card rounded-lg shadow">
+    <div className="w-full max-w-[calc(100%-32px)] mx-auto bg-white rounded-lg p-4 mt-8 shadow-md">
       <h2 className="text-2xl font-bold mb-4">Leaderboard</h2>
-      
+     
       {/* Tab navigation */}
-      <div className="flex space-x-2 mb-4">
-        <Button 
-          variant={activeTab === "regular" ? "default" : "outline"}
+      <div className="flex gap-2 mb-4">
+        <button
+          className={`px-4 py-2 rounded ${
+            activeTab === "regular"
+              ? "bg-[#F96C51] text-white"
+              : "bg-gray-100"
+          }`}
           onClick={() => setActiveTab("regular")}
         >
           Regular Levels
-        </Button>
-        <Button 
-          variant={activeTab === "bonus" ? "default" : "outline"}
+        </button>
+        <button
+          className={`px-4 py-2 rounded ${
+            activeTab === "bonus"
+              ? "bg-[#F96C51] text-white"
+              : "bg-gray-100"
+          }`}
           onClick={() => setActiveTab("bonus")}
         >
           Bonus Levels
-        </Button>
-        <Button 
-          variant={activeTab === "community" ? "default" : "outline"}
+        </button>
+        <button
+          className={`px-4 py-2 rounded ${
+            activeTab === "community"
+              ? "bg-[#F96C51] text-white"
+              : "bg-gray-100"
+          }`}
           onClick={() => setActiveTab("community")}
         >
           Community Levels
-        </Button>
+        </button>
       </div>
-      
-      {/* Leaderboard table */}
+
+      {/* Leaderboard content */}
       {isLoading ? (
-        <div className="text-center py-8">Loading...</div>
+        <div className="flex justify-center items-center p-8">
+          <p>Loading...</p>
+        </div>
       ) : leaderboardData.length > 0 ? (
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-border">
+          <table className="w-full">
             <thead>
-              <tr>
-                <th className="px-4 py-2 text-left">Rank</th>
-                <th className="px-4 py-2 text-left">Player</th>
-                <th className="px-4 py-2 text-left">Level</th>
-                <th className="px-4 py-2 text-left">Time</th>
-                <th className="px-4 py-2 text-left">Date</th>
+              <tr className="border-b">
+                <th className="p-2 text-left w-12">Rank</th>
+                <th className="p-2 text-left w-40">Player</th>
+                <th className="p-2 text-left w-20">Level</th>
+                <th className="p-2 text-left w-24">Time</th>
+                <th className="p-2 text-left w-24">Date</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
+            <tbody>
               {leaderboardData.map((entry, index) => (
-                <tr key={`${entry.id}-${entry.timestamp}`} className="hover:bg-muted/50">
-                  <td className="px-4 py-3">{index + 1}</td>
-                  <td className="px-4 py-3">
+                <tr
+                  key={`${entry.id}-${entry.timestamp}`}
+                  className="border-b"
+                >
+                  <td className="p-2">{index + 1}</td>
+                  <td className="p-2">
                     <div className="flex items-center gap-2">
                       <span className="text-xl">{entry.avatar}</span>
                       <span>{entry.username}</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3">{entry.id}</td>
-                  <td className="px-4 py-3">{formatDuration(entry.time)}</td>
-                  <td className="px-4 py-3">{formatDate(entry.timestamp)}</td>
+                  <td className="p-2">{entry.id}</td>
+                  <td className="p-2">{formatDuration(entry.time)}</td>
+                  <td className="p-2">{formatDate(entry.timestamp)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       ) : (
-        <div className="text-center py-8">
-          No completion times recorded for {activeTab} levels yet.
+        <div className="flex justify-center items-center p-8">
+          <p>No completion times recorded for {activeTab} levels yet.</p>
         </div>
       )}
     </div>
   );
 };
 
-export default LeaderboardComponent;
+export default Leaderboard;

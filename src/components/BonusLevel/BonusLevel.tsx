@@ -215,6 +215,7 @@ const BonusLevel = ({
                   text: t("NEXT_LEVEL"),
                 }}
                 close={() => setShowWinningScreen(false)}
+                levelId={id}
               />
             )}
             <Board
@@ -241,7 +242,7 @@ const BonusLevel = ({
 
         <div className="w-full px-2">
           <Giscus
-            repo="samimsu/queens-game-linkedin"
+            repo="ranjith-gampa/queens-game-linkedin"
             repoId="R_kgDONCfeAg"
             category="Announcements"
             categoryId="DIC_kwDONCfeAs4CnIas"
