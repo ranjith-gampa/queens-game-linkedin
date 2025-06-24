@@ -195,7 +195,7 @@ const Level: React.FC<LevelProps> = ({ id, level }) => {
           <div className="game relative">
             {showWinningScreen && (
               <WinningScreen
-                {...(showClock && { timer })}
+                timer={showClock && timer}
                 previousLevel={previousLevel}
                 nextLevel={nextLevel}
                 level={id}
@@ -227,7 +227,7 @@ const Level: React.FC<LevelProps> = ({ id, level }) => {
 
         <div className="w-full px-2">
           <Giscus
-            repo="samimsu/queens-game-linkedin"
+            repo="ranjith-gampa/queens-game-linkedin"
             repoId="R_kgDONCfeAg"
             category="Announcements"
             categoryId="DIC_kwDONCfeAs4CnIas"

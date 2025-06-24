@@ -19,7 +19,7 @@
   <img src="https://github.com/user-attachments/assets/6fda1818-21f7-4d65-a288-75c9a4f30f65" width="50%" alt="queens game mockup">
 </div>
 
-## Levels Added (412/420)
+## Levels Added (411/419)
 
 - [x] 1-3
 - [ ] 4
@@ -31,7 +31,7 @@
 - [ ] 13-14
 - [x] 15-17
 - [ ] 18-20
-- [x] 21-420
+- [x] 21-419
 
 Note: If anyone could help in finding the missing levels, I'd really appreciate it.
 
@@ -51,4 +51,4 @@ https://github.com/user-attachments/assets/9a7be10f-87c2-4311-a7bf-f0103581f569
 
 ## Original Author
 
-[Samisu-Queens-Game-Linked](https://github.com/samisu/queens-game-linkedin)
+[Samimsu-Queens-Game-Linked](https://github.com/samimsu/queens-game-linkedin)
