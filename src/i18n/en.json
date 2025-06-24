@@ -36,7 +36,7 @@
   "GO_HOME": "Go home",
   "SHARE_LEVEL_SCREENSHOT_LINK": "If you have a screenshot of the level, please share it <1>here</1> or reach out directly.",
   "404_PAGE_NOT_FOUND": "404 - Page Not Found",
-  "PAGE_YOU_ARE_LOOKING_FOR_DOESNT_EXIST": "Oops! The page you’re looking for doesn’t exist.",
+  "PAGE_YOU_ARE_LOOKING_FOR_DOESNT_EXIST": "Oops! The page you're looking for doesn't exist.",
   "SHOW_GRID_LINES": "Show grid lines",
   "TOLERANCE": "Tolerance",
   "MINIMUM_LINE_HEIGHT": "Minimum line height",
@@ -109,5 +109,8 @@
   "MULTIPLE_SOLUTIONS": "Multiple solutions",
   "COMPLETED": "Completed",
   "NOT_COMPLETED": "Not completed",
-  "CLEAR_ALL": "Clear all"
+  "CLEAR_ALL": "Clear all",
+  "NEW_FASTEST_TIME": "New Fastest Time",
+  "FIRST_TIME_COMPLETION": "First Time Completion!",
+  "PREVIOUS_BEST": "Previous Best"
 }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { ThemeProvider } from "next-themes";
@@ -11,10 +11,21 @@ import PageCommunityLevel from "./pages/PageCommunityLevel";
 import PageLevelBuilder from "./pages/PageLevelBuilder";
 import PageNotFound from "./pages/PageNotFound";
 import ThemeSwitcher from "./components/ThemeSwitcher";
+import UserIdentificationDialog from "./components/UserIdentificationDialog";
+import { hasUserProfile } from "./utils/localStorage";
 import "./App.css";
 import "./i18n";
 
 const App = () => {
+  const [showUserIdentificationDialog, setShowUserIdentificationDialog] = useState(false);
+
+  useEffect(() => {
+    // Check if user profile exists, if not show the dialog
+    if (!hasUserProfile()) {
+      setShowUserIdentificationDialog(true);
+    }
+  }, []);
+
   return (
     <HelmetProvider>
       <ThemeProvider attribute="class" defaultTheme="light">
@@ -37,6 +48,10 @@ const App = () => {
           </Routes>
         </Router>
         <ThemeSwitcher />
+        <UserIdentificationDialog 
+          open={showUserIdentificationDialog} 
+          onOpenChange={setShowUserIdentificationDialog} 
+        />
       </ThemeProvider>
     </HelmetProvider>
   );

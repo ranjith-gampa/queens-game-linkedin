@@ -181,3 +181,134 @@ export const getShowNotCompletedCommunityLevelsPreference = () => {
     ) ?? false
   ); // Default to false
 };
+
+import { LevelCompletionTime, UserProfile } from "./types";
+
+const LEVEL_COMPLETION_TIMES_KEY = "levelCompletionTimes";
+const USER_PROFILE_KEY = "userProfile";
+
+export const getPreviousFastestTime = (
+  id: string | number,
+  levelType: string
+): number | null => {
+  const times = getLevelCompletionTimes(id, levelType);
+  return times.length > 0 ? times[0].time : null;
+};
+
+export const saveLevelCompletionTime = (
+  id: string | number,
+  time: number,
+  levelType: string
+): { isFastest: boolean; previousFastestTime: number | null } => {
+  const stringId = id.toString();
+  const completionTimes: LevelCompletionTime[] =
+    JSON.parse(localStorage.getItem(LEVEL_COMPLETION_TIMES_KEY) as string) || [];
+
+  const userProfile = getUserProfile();
+  
+  const newTimeEntry: LevelCompletionTime = {
+    id: stringId,
+    time,
+    timestamp: Date.now(),
+    levelType,
+  };
+
+  // Include user information if a profile exists
+  if (userProfile) {
+    newTimeEntry.userId = userProfile.userId;
+    newTimeEntry.username = userProfile.username;
+    newTimeEntry.avatar = userProfile.avatar;
+  }
+
+  // Mark level as completed based on level type
+  if (levelType === "regular") {
+    markLevelAsCompleted(Number(id));
+  } else if (levelType === "bonus") {
+    markBonusLevelAsCompleted(stringId);
+  } else if (levelType === "community") {
+    markCommunityLevelAsCompleted(stringId);
+  }
+
+  // Find existing times for this level and type
+  const existingTimes = completionTimes.filter(
+    entry => entry.id === stringId && entry.levelType === levelType
+  );
+
+  let isFastest = false;
+  let previousFastestTime: number | null = null;
+
+  // If there are existing times, check if the new one is faster than any of them
+  if (existingTimes.length > 0) {
+    const fastestTimeEntry = existingTimes.reduce(
+      (fastest, current) => (current.time < fastest.time ? current : fastest),
+      existingTimes[0]
+    );
+
+    previousFastestTime = fastestTimeEntry.time;
+
+    // If the new time is faster than the existing fastest time, replace it
+    if (time < fastestTimeEntry.time) {
+      isFastest = true;
+      // Remove the existing entry
+      const updatedTimes = completionTimes.filter(
+        entry => !(entry.id === stringId && 
+                  entry.levelType === levelType && 
+                  entry.time === fastestTimeEntry.time &&
+                  entry.timestamp === fastestTimeEntry.timestamp)
+      );
+      
+      // Add the new faster time
+      updatedTimes.push(newTimeEntry);
+      localStorage.setItem(
+        LEVEL_COMPLETION_TIMES_KEY,
+        JSON.stringify(updatedTimes)
+      );
+    }
+  } else {
+    // If no existing times for this level and type, this is automatically the fastest
+    isFastest = true;
+    
+    // Add the new time
+    completionTimes.push(newTimeEntry);
+    localStorage.setItem(
+      LEVEL_COMPLETION_TIMES_KEY,
+      JSON.stringify(completionTimes)
+    );
+  }
+
+  return { isFastest, previousFastestTime };
+};
+
+export const getLevelCompletionTimes = (
+  id: string | number,
+  levelType: string
+): LevelCompletionTime[] => {
+  const stringId = id.toString();
+  const completionTimes: LevelCompletionTime[] =
+    JSON.parse(localStorage.getItem(LEVEL_COMPLETION_TIMES_KEY) as string) || [];
+
+  return completionTimes
+    .filter(
+      (entry) => entry.id === stringId && entry.levelType === levelType
+    )
+    .sort((a, b) => a.time - b.time); // Sort from fastest to slowest
+};
+
+export const getAllLevelCompletionTimes = (): LevelCompletionTime[] => {
+  return (
+    JSON.parse(localStorage.getItem(LEVEL_COMPLETION_TIMES_KEY) as string) || []
+  );
+};
+
+export const getUserProfile = (): UserProfile | null => {
+  const profileData = localStorage.getItem(USER_PROFILE_KEY);
+  return profileData ? JSON.parse(profileData) as UserProfile : null;
+};
+
+export const setUserProfile = (profile: UserProfile): void => {
+  localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(profile));
+};
+
+export const hasUserProfile = (): boolean => {
+  return localStorage.getItem(USER_PROFILE_KEY) !== null;
+};

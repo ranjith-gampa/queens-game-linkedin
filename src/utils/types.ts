@@ -28,3 +28,19 @@ export interface TestLevel {
   colorRegions: string[][];
   regionColors: { [key: string]: string };
 }
+
+export interface LevelCompletionTime {
+  id: string;
+  time: number;
+  timestamp: number;
+  levelType: string;
+  userId?: string;
+  username?: string;
+  avatar?: string;
+}
+
+export interface UserProfile {
+  userId: string;
+  username: string;
+  avatar: string;
+}

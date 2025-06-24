@@ -1,6 +1,6 @@
 <div align="center">
   <h1>
-    <a href="https://queensgame.vercel.app/">
+    <a href="https://queensgamerg.vercel.app/">
       Queens
     </a>
   </h1>
@@ -16,7 +16,7 @@
     A collection of playable levels from the game
     <a href="https://www.linkedin.com/showcase/queens-game">
       Queens, by LinkedIn</a
-    >. Play it <a href="https://queensgame.vercel.app/"> here</a>!
+    >. Play it <a href="https://queensgamerg.vercel.app/"> here</a>!
   </div>
   <img src="https://github.com/user-attachments/assets/6fda1818-21f7-4d65-a288-75c9a4f30f65" width="50%" alt="queens game mockup">
 </div>
