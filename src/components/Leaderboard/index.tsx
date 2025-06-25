@@ -3,7 +3,7 @@ import formatDuration from '@/utils/formatDuration';
 import { LeaderboardEntry } from '@/utils/types';
 import { getLeaderboardEntries } from '@/utils/database';
 
-const ROW_LIMIT = 10;
+const ROW_LIMIT = 100;
 
 const Leaderboard = () => {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
