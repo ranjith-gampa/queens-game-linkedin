@@ -183,6 +183,7 @@ export const getShowNotCompletedCommunityLevelsPreference = () => {
 };
 
 import { LevelCompletionTime, UserProfile } from "./types";
+import { saveLeaderboardEntry } from './database';
 
 const LEVEL_COMPLETION_TIMES_KEY = "levelCompletionTimes";
 const USER_PROFILE_KEY = "userProfile";
@@ -195,30 +196,17 @@ export const getPreviousFastestTime = (
   return times.length > 0 ? times[0].time : null;
 };
 
-export const saveLevelCompletionTime = (
+export const saveLevelCompletionTime = async (
   id: string | number,
   time: number,
   levelType: string
-): { isFastest: boolean; previousFastestTime: number | null } => {
+): Promise<{ isFastest: boolean; previousFastestTime: number | null }> => {
   const stringId = id.toString();
+  const timeSeconds = Math.floor(time);
   const completionTimes: LevelCompletionTime[] =
     JSON.parse(localStorage.getItem(LEVEL_COMPLETION_TIMES_KEY) as string) || [];
 
   const userProfile = getUserProfile();
-  
-  const newTimeEntry: LevelCompletionTime = {
-    id: stringId,
-    time,
-    timestamp: Date.now(),
-    levelType,
-  };
-
-  // Include user information if a profile exists
-  if (userProfile) {
-    newTimeEntry.userId = userProfile.userId;
-    newTimeEntry.username = userProfile.username;
-    newTimeEntry.avatar = userProfile.avatar;
-  }
 
   // Mark level as completed based on level type
   if (levelType === "regular") {
@@ -229,7 +217,7 @@ export const saveLevelCompletionTime = (
     markCommunityLevelAsCompleted(stringId);
   }
 
-  // Find existing times for this level and type
+  // Save to local storage first
   const existingTimes = completionTimes.filter(
     entry => entry.id === stringId && entry.levelType === levelType
   );
@@ -237,7 +225,18 @@ export const saveLevelCompletionTime = (
   let isFastest = false;
   let previousFastestTime: number | null = null;
 
-  // If there are existing times, check if the new one is faster than any of them
+  // Include user information
+  const newTimeEntry: LevelCompletionTime = {
+    id: stringId,
+    time,
+    timestamp: Date.now(),
+    levelType,
+    userId: userProfile?.userId || 'anonymous',
+    username: userProfile?.username || 'Anonymous',
+    avatar: userProfile?.avatar || '👤'
+  };
+
+  // Check if this is a new fastest time
   if (existingTimes.length > 0) {
     const fastestTimeEntry = existingTimes.reduce(
       (fastest, current) => (current.time < fastest.time ? current : fastest),
@@ -246,34 +245,37 @@ export const saveLevelCompletionTime = (
 
     previousFastestTime = fastestTimeEntry.time;
 
-    // If the new time is faster than the existing fastest time, replace it
     if (time < fastestTimeEntry.time) {
       isFastest = true;
-      // Remove the existing entry
+      // Update local storage with new fastest time
       const updatedTimes = completionTimes.filter(
-        entry => !(entry.id === stringId && 
-                  entry.levelType === levelType && 
-                  entry.time === fastestTimeEntry.time &&
-                  entry.timestamp === fastestTimeEntry.timestamp)
+        entry => !(entry.id === stringId && entry.levelType === levelType)
       );
-      
-      // Add the new faster time
       updatedTimes.push(newTimeEntry);
-      localStorage.setItem(
-        LEVEL_COMPLETION_TIMES_KEY,
-        JSON.stringify(updatedTimes)
-      );
+      localStorage.setItem(LEVEL_COMPLETION_TIMES_KEY, JSON.stringify(updatedTimes));
     }
   } else {
-    // If no existing times for this level and type, this is automatically the fastest
     isFastest = true;
-    
-    // Add the new time
     completionTimes.push(newTimeEntry);
-    localStorage.setItem(
-      LEVEL_COMPLETION_TIMES_KEY,
-      JSON.stringify(completionTimes)
-    );
+    localStorage.setItem(LEVEL_COMPLETION_TIMES_KEY, JSON.stringify(completionTimes));
+  }
+
+  // Save to database if this is a fastest time
+  if (isFastest) {
+    try {
+      const addedToLeaderboard = await saveLeaderboardEntry(
+        userProfile?.userId || 'anonymous',
+        userProfile?.username || 'Anonymous',
+        userProfile?.avatar || '👤',
+        stringId,
+        timeSeconds,
+        levelType
+      );
+      console.log('Saved to database:', addedToLeaderboard);
+    } catch (error) {
+      console.error('Failed to save to database:', error);
+      // Continue since we still have local storage backup
+    }
   }
 
   return { isFastest, previousFastestTime };
