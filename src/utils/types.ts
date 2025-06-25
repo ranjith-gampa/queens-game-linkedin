@@ -44,3 +44,13 @@ export interface UserProfile {
   username: string;
   avatar: string;
 }
+
+export interface LeaderboardEntry {
+  id: string;
+  levelId: string;
+  username: string;
+  avatar: string;
+  type: string;
+  timeSeconds: number;
+  completedAt: string;
+}

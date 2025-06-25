@@ -3,7 +3,7 @@ import LevelSelectionFilters from "./components/LevelSelectionFilters";
 import LevelsCollection from "./components/LevelsCollection";
 import LinkedInNote from "./components/LinkedInNote";
 import ResetAllProgressDialog from "./components/ResetAllProgressDialog";
-import Leaderboard from "@/components/Leaderboard/Leaderboard";
+import Leaderboard from "@/components/Leaderboard/index";
 import {
   getGroupingPreference,
   setGroupingPreference,
