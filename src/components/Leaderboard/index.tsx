@@ -36,30 +36,36 @@ const Leaderboard = () => {
   };
 
   return (
-    <div className="w-full max-w-[calc(100%-32px)] mx-auto bg-white rounded-lg p-4 mt-8 shadow-md">
+    <div className="w-full max-w-[calc(100%-32px)] mx-auto bg-background text-card-foreground rounded-lg p-4 mt-8 shadow-md">
       <h2 className="text-2xl font-bold mb-4">Leaderboard</h2>
       
       {/* Tab navigation */}
       <div className="flex gap-2 mb-4">
         <button
-          className={`px-4 py-2 rounded transition-colors ${
-            activeTab === "regular" ? "bg-[#F96C51] text-white" : "bg-gray-100 hover:bg-gray-200"
+          className={`px-4 py-2 rounded transition-colors border ${
+            activeTab === "regular" 
+              ? "bg-primary text-white border-primary" 
+              : "bg-background border-border hover:bg-muted/20"
           }`}
           onClick={() => setActiveTab("regular")}
         >
           Regular Levels
         </button>
         <button
-          className={`px-4 py-2 rounded transition-colors ${
-            activeTab === "bonus" ? "bg-[#F96C51] text-white" : "bg-gray-100 hover:bg-gray-200"
+          className={`px-4 py-2 rounded transition-colors border ${
+            activeTab === "bonus" 
+              ? "bg-primary text-white border-primary" 
+              : "bg-background border-border hover:bg-muted/20"
           }`}
           onClick={() => setActiveTab("bonus")}
         >
           Bonus Levels
         </button>
         <button
-          className={`px-4 py-2 rounded transition-colors ${
-            activeTab === "community" ? "bg-[#F96C51] text-white" : "bg-gray-100 hover:bg-gray-200"
+          className={`px-4 py-2 rounded transition-colors border ${
+            activeTab === "community" 
+              ? "bg-primary text-white border-primary" 
+              : "bg-background border-border hover:bg-muted/20"
           }`}
           onClick={() => setActiveTab("community")}
         >
@@ -76,26 +82,26 @@ const Leaderboard = () => {
 
       {/* Leaderboard content */}
       {isLoading ? (
-        <div className="flex justify-center items-center p-8">
+        <div className="flex justify-center items-center p-8 text-card-foreground">
           <p>Loading...</p>
         </div>
       ) : entries.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b">
-                <th className="p-2 text-left w-12">Rank</th>
-                <th className="p-2 text-left w-40">Player</th>
-                <th className="p-2 text-left w-20">Level</th>
-                <th className="p-2 text-left w-24">Time</th>
-                <th className="p-2 text-left w-24">Date</th>
+              <tr className="border-b border-border">
+                <th className="p-2 text-left w-12 text-card-foreground">Rank</th>
+                <th className="p-2 text-left w-40 text-card-foreground">Player</th>
+                <th className="p-2 text-left w-20 text-card-foreground">Level</th>
+                <th className="p-2 text-left w-24 text-card-foreground">Time</th>
+                <th className="p-2 text-left w-24 text-card-foreground">Date</th>
               </tr>
             </thead>
             <tbody>
               {entries.map((entry, index) => (
                 <tr
                   key={`${entry.id}`}
-                  className="border-b"
+                  className="border-b border-border text-card-foreground"
                 >
                   <td className="p-2">{index + 1}</td>
                   <td className="p-2">
@@ -113,7 +119,7 @@ const Leaderboard = () => {
           </table>
         </div>
       ) : (
-        <div className="flex justify-center items-center p-8">
+        <div className="flex justify-center items-center p-8 text-card-foreground">
           <p>No completion times recorded for {activeTab} levels yet.</p>
         </div>
       )}
