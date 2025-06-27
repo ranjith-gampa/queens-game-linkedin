@@ -1,7 +1,22 @@
 import { LeaderboardEntry } from './types';
-import supabase from './database/supabase'; // Assuming you have a supabase client setup
+import supabase from './database/supabase';
 
-export async function getLeaderboardEntries(levelType: string, rowLimit: number): Promise<LeaderboardEntry[]> {
+const ROW_LIMIT = 100;
+const ROW_LIMIT_TODAY = 10; // Limit for today's leaderboard
+
+function mapToLeaderboardEntries(data: any[]): LeaderboardEntry[] {
+    return data.map((entry: any) => ({
+        id: entry.id,
+        levelId: entry.level_id,
+        username: entry.username,
+        avatar: entry.avatar,
+        timeSeconds: entry.time_seconds,
+        completedAt: entry.completed_at,
+        type: entry.type
+    }));
+}
+
+export async function getLeaderboardEntries(levelType: string, rowLimit: number = ROW_LIMIT): Promise<LeaderboardEntry[]> {
     const { data, error } = await supabase.rpc('get_completion_times', {
         p_level_type: levelType,
         num_records: rowLimit
@@ -10,18 +25,24 @@ export async function getLeaderboardEntries(levelType: string, rowLimit: number)
     if (error) {
         console.error('Error calling function: get_completion_times', error);
         return Promise.reject(new Error('Failed to fetch leaderboard entries'));
-    } else {
-        const leaderboardData = data.map((entry: any) => ({
-            levelId: entry.level_id,
-            username: entry.username,
-            avatar: entry.avatar,
-            timeSeconds: entry.time_seconds,
-            completedAt: entry.completed_at,
-            type: entry.type,
-            id: entry.id
-        })) as LeaderboardEntry[];
-        return leaderboardData;
     }
+    
+    return mapToLeaderboardEntries(data);
+}
+
+export async function getTodayLeaderboardEntries(levelType: string, levelId: string, rowLimit: number = ROW_LIMIT_TODAY): Promise<LeaderboardEntry[]> {
+    const { data, error } = await supabase.rpc('get_completion_times_today', {
+        p_level_id: levelId,
+        p_level_type: levelType,
+        num_records: rowLimit
+    });
+
+    if (error) {
+        console.error('Error calling function: get_completion_times_today', error);
+        return Promise.reject(new Error('Failed to fetch today\'s leaderboard entries'));
+    }
+    
+    return mapToLeaderboardEntries(data);
 }
 
 async function insertOrUpdateUser(
