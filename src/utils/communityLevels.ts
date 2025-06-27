@@ -78,6 +78,19 @@ import level76 from "./community-levels/level76";
 import level77 from "./community-levels/level77";
 import level78 from "./community-levels/level78";
 import level79 from "./community-levels/level79";
+import level80 from "./community-levels/level80";
+import level81 from "./community-levels/level81";
+import level82 from "./community-levels/level82";
+import level83 from "./community-levels/level83";
+import level84 from "./community-levels/level84";
+import level85 from "./community-levels/level85";
+import level86 from "./community-levels/level86";
+import level87 from "./community-levels/level87";
+import level88 from "./community-levels/level88";
+import level89 from "./community-levels/level89";
+import level90 from "./community-levels/level90";
+import level91 from "./community-levels/level91";
+import level92 from "./community-levels/level92";
 
 export const communityLevels: { [key: string]: CommunityLevel } = {
   level1,
@@ -159,4 +172,17 @@ export const communityLevels: { [key: string]: CommunityLevel } = {
   level77,
   level78,
   level79,
+  level80,
+  level81,
+  level82,
+  level83,
+  level84,
+  level85,
+  level86,
+  level87,
+  level88,
+  level89,
+  level90,
+  level91,
+  level92,
 };
