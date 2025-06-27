@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Giscus from "@giscus/react";
 import { useTheme } from "next-themes";
@@ -20,6 +20,8 @@ import Button from "../Button";
 import useVisibility from "../../hooks/useVisibility";
 import useGameLogic from "@/hooks/useGameLogic";
 import { getGiscusLanguage } from "@/utils/getGiscusLanguage";
+import { getLevelCompletionTimes } from "@/utils/localStorage";
+import RetryCooldownDialog from "./components/RetryCooldownDialog";
 
 interface LevelProps {
   id: string;
@@ -28,6 +30,8 @@ interface LevelProps {
 
 const Level: React.FC<LevelProps> = ({ id, level }) => {
   const { theme } = useTheme();
+  const [showRetryDialog, setShowRetryDialog] = useState(false);
+  const [retryCooldown, setRetryCooldown] = useState(0);
 
   const levelSize = levels[level].size;
 
@@ -113,6 +117,46 @@ const Level: React.FC<LevelProps> = ({ id, level }) => {
     );
   };
 
+  // Helper function to check cooldown using completion times
+  const checkCooldown = (): number => {
+    const completionTimes = getLevelCompletionTimes(id, "regular");
+    if (completionTimes.length === 0) {
+      return 0;
+    }
+
+    // Get the latest completion
+    const latestCompletion = completionTimes.reduce((latest, current) =>
+      current.timestamp > latest.timestamp ? current : latest
+    );
+
+    const COOLDOWN_DURATION = 15 * 60 * 1000; // 30 minutes in milliseconds
+    const cooldownEndsAt = latestCompletion.timestamp + COOLDOWN_DURATION;
+    const now = Date.now();
+    
+    if (now >= cooldownEndsAt) {
+      return 0;
+    }
+
+    return Math.ceil((cooldownEndsAt - now) / 1000);
+  };
+
+  // Prevent any board interaction while in cooldown
+  const handleSquareClickWithCooldown = (row: number, col: number) => {
+    const cooldown = checkCooldown();
+    if (cooldown > 0) {
+      setRetryCooldown(cooldown);
+      setShowRetryDialog(true);
+      return;
+    }
+    handleSquareClick(row, col);
+  };
+
+  const handleSquareMouseEnterWithCooldown = (squares: number[][]) => {
+    const cooldown = checkCooldown();
+    if (cooldown > 0) return;
+    handleDrag(squares);
+  };
+
   useEffect(() => {
     if (!isVisible || hasWon) {
       setTimerRunning(false);
@@ -122,8 +166,25 @@ const Level: React.FC<LevelProps> = ({ id, level }) => {
     }
   }, [isVisible, hasWon]);
 
+  // Check cooldown when component mounts or when returning to the level
+  useEffect(() => {
+    const remainingSeconds = checkCooldown();
+    if (remainingSeconds > 0) {
+      setRetryCooldown(remainingSeconds);
+      setShowRetryDialog(true);
+      setTimerRunning(false);
+    }
+  }, [id]);
+
   return (
     <div key={id} className="flex flex-col justify-center items-center pt-4">
+      <RetryCooldownDialog
+        open={showRetryDialog}
+        onOpenChange={setShowRetryDialog}
+        timeLeft={retryCooldown}
+        onTimerComplete={() => setTimerRunning(true)}
+      />
+
       <div className="flex flex-col items-center">
         <div>
           <div
@@ -195,7 +256,7 @@ const Level: React.FC<LevelProps> = ({ id, level }) => {
           <div className="game relative">
             {showWinningScreen && (
               <WinningScreen
-                timer={showClock && timer}
+                timer={showClock ? timer : 0}
                 previousLevel={previousLevel}
                 nextLevel={nextLevel}
                 level={id}
@@ -204,8 +265,8 @@ const Level: React.FC<LevelProps> = ({ id, level }) => {
             )}
             <Board
               board={board}
-              handleSquareClick={handleSquareClick}
-              handleSquareMouseEnter={handleDrag}
+              handleSquareClick={handleSquareClickWithCooldown}
+              handleSquareMouseEnter={handleSquareMouseEnterWithCooldown}
               level={level}
               boardSize={boardSize}
               colorRegions={colorRegions}
