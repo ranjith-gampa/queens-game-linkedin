@@ -2,6 +2,8 @@
   "LANGUAGE_NAME": "English",
   "DATE_FORMAT": "MMM d, yyyy",
   "LEVEL": "Level",
+  "RETRY_COOLDOWN": "Retry Cooldown",
+  "RETRY_COOLDOWN_DESCRIPTION": "Please wait before trying again. Take a break and come back in:",
   "AVAILABLE_LEVELS_ONLY": "Available levels only",
   "HELP_IN_FINDING_NEW_LEVELS": "I've added as many levels as I could find. I'd appreciate any help in finding the rest.",
   "ASK_RESET_ALL_PROGRESS": "Are you sure you want to reset all progress?",
