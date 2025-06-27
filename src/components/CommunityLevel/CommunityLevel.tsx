@@ -249,9 +249,9 @@ const CommunityLevel = ({
         <div className="w-full px-2">
           <Giscus
             repo="ranjith-gampa/queens-game-linkedin"
-            repoId="R_kgDONCfeAg"
+            repoId="R_kgDOPAGqSA"
             category="Announcements"
-            categoryId="DIC_kwDONCfeAs4CnIas"
+            categoryId="DIC_kwDOPAGqSM4CsFoo"
             mapping="pathname"
             strict="1"
             reactionsEnabled="1"
