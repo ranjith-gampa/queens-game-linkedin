@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import formatDuration from '@/utils/formatDuration';
 import { LeaderboardEntry } from '@/utils/types';
 import { getLeaderboardEntries, getTodayLeaderboardEntries } from '@/utils/database';
@@ -12,18 +12,19 @@ const Leaderboard = () => {
   const [timeView, setTimeView] = useState<'today' | 'all-time'>('today');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  // Add states for managing transitions
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [sortConfig, setSortConfig] = useState<{
+    key: 'levelId' | 'timeSeconds';
+    direction: 'asc' | 'desc';
+  }>({ key: 'timeSeconds', direction: 'asc' });
   const [prevEntries, setPrevEntries] = useState<LeaderboardEntry[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      // Set loading and transition states first
       setIsLoading(true);
       setIsTransitioning(true);
       setPrevEntries(entries);
 
-      // Delay the actual data fetch to show loading state
       await new Promise(resolve => setTimeout(resolve, 100));
       
       try {
@@ -31,20 +32,19 @@ const Leaderboard = () => {
           if (activeTab === 'regular') {
             const dailyLevel = getDailyLevelNumber();
             const data = await getTodayLeaderboardEntries(activeTab, dailyLevel.toString(), ROW_LIMIT);
-            setEntries(data);
+            setEntries(sortEntries(data));
           } else {
             setEntries([]);
           }
         } else {
           const data = await getLeaderboardEntries(activeTab, ROW_LIMIT);
-          setEntries(data);
+          setEntries(sortEntries(data));
         }
       } catch (error) {
         console.error('Failed to fetch leaderboard:', error);
         setError('Failed to load leaderboard data');
       } finally {
         setIsLoading(false);
-        // Add a small delay before removing the transition state
         setTimeout(() => setIsTransitioning(false), 300);
       }
     };
@@ -52,7 +52,6 @@ const Leaderboard = () => {
     fetchData();
   }, [activeTab, timeView]);
 
-  // Function to format date
   const formatDate = (timestamp: string): string => {
     return new Date(timestamp).toLocaleDateString();
   };
@@ -64,6 +63,48 @@ const Leaderboard = () => {
     }
   };
 
+  const sortEntries = (entriesToSort: LeaderboardEntry[]) => {
+    return [...entriesToSort].sort((a, b) => {
+      if (sortConfig.key === 'levelId') {
+        const aLevel = parseInt(a.levelId);
+        const bLevel = parseInt(b.levelId);
+        return sortConfig.direction === 'asc' ? aLevel - bLevel : bLevel - aLevel;
+      } else {
+        return sortConfig.direction === 'asc' 
+          ? a.timeSeconds - b.timeSeconds 
+          : b.timeSeconds - a.timeSeconds;
+      }
+    });
+  };
+
+  const handleSort = (key: 'levelId' | 'timeSeconds') => {
+    // Calculate new sort config
+    const newSortConfig = {
+      key,
+      // If switching to a new column, maintain current direction
+      // If clicking same column, toggle direction
+      direction: sortConfig.key === key ? 
+        (sortConfig.direction === 'asc' ? 'desc' : 'asc') : 
+        sortConfig.direction
+    };
+    
+    // Update sort config
+    setSortConfig(newSortConfig);
+    
+    // Sort with new config immediately
+    setEntries(prevEntries => [...prevEntries].sort((a, b) => {
+      if (newSortConfig.key === 'levelId') {
+        const aLevel = parseInt(a.levelId);
+        const bLevel = parseInt(b.levelId);
+        return newSortConfig.direction === 'asc' ? aLevel - bLevel : bLevel - aLevel;
+      } else {
+        return newSortConfig.direction === 'asc' 
+          ? a.timeSeconds - b.timeSeconds 
+          : b.timeSeconds - a.timeSeconds;
+      }
+    }));
+  };
+
   const renderLeaderboardContent = (data: LeaderboardEntry[]) => (
     data.length > 0 ? (
       <div className="overflow-x-auto">
@@ -72,8 +113,32 @@ const Leaderboard = () => {
             <tr className="border-b border-border">
               <th className="p-2 text-left w-12 text-card-foreground">Rank</th>
               <th className="p-2 text-left w-40 text-card-foreground">Player</th>
-              <th className="p-2 text-left w-20 text-card-foreground">Level</th>
-              <th className="p-2 text-left w-24 text-card-foreground">Time</th>
+              <th className="p-2 text-left w-20 text-card-foreground">
+                <button
+                  onClick={() => handleSort('levelId')}
+                  className="flex items-center gap-1 hover:text-primary"
+                >
+                  Level
+                  {sortConfig.key === 'levelId' && (
+                    <span className="text-xs">
+                      {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </button>
+              </th>
+              <th className="p-2 text-left w-24 text-card-foreground">
+                <button
+                  onClick={() => handleSort('timeSeconds')}
+                  className="flex items-center gap-1 hover:text-primary"
+                >
+                  Time
+                  {sortConfig.key === 'timeSeconds' && (
+                    <span className="text-xs">
+                      {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </button>
+              </th>
               <th className="p-2 text-left w-24 text-card-foreground">Date</th>
             </tr>
           </thead>
