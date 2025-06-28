@@ -23,6 +23,7 @@ const LevelSelection = () => {
     getHideCompletedLevelsPreference
   );
   const [groupBySize, setGroupBySize] = useState(getGroupingPreference);
+  const [sortDirection, setSortDirection] = useState("desc"); // Add sort direction state
   const [resetTrigger, setResetTrigger] = useState(false);
 
   useEffect(() => {
@@ -41,6 +42,10 @@ const LevelSelection = () => {
     setGroupingPreference(newSetting);
   };
 
+  const toggleSortDirection = () => {
+    setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+  };
+
   return (
     <div className="flex flex-col justify-center items-center w-fit mx-auto">
       <div className="flex w-full justify-between mb-2">
@@ -57,6 +62,13 @@ const LevelSelection = () => {
           <ResetAllProgressDialog
             onReset={() => setResetTrigger((prev) => !prev)}
           />
+          <button
+            onClick={toggleSortDirection}
+            className="hover:bg-muted/20 p-2 rounded"
+            title={sortDirection === "desc" ? "Sort ascending" : "Sort descending"}
+          >
+            <span className="text-xl">{sortDirection === "desc" ? "↓" : "↑"}</span>
+          </button>
           <button onClick={toggleGroupBySize}>
             {groupBySize ? <GroupIcon /> : <UngroupIcon />}
           </button>
@@ -66,7 +78,7 @@ const LevelSelection = () => {
         showOnlyAvailableLevels={showOnlyAvailableLevels}
         hideCompletedLevels={hideCompletedLevels}
         groupBySize={groupBySize}
-        resetTrigger={resetTrigger}
+        sortDirection={sortDirection}
         className="mb-3"
       />
       <Leaderboard />

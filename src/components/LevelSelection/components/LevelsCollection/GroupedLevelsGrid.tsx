@@ -18,22 +18,32 @@ const orderedLevels = getOrderedLevels();
 const GroupedLevelsGrid: React.FC<GroupedLevelsGridProps> = ({
   showOnlyAvailableLevels,
   hideCompletedLevels,
+  sortDirection = "desc",
 }) => {
   const { t } = useTranslation();
-  const levelsBySizeFiltered: Record<string, number[]> = useMemo(() => {
-    return Object.entries(levelsBySize).reduce(
+  const levelsBySizeFiltered = useMemo(() => {
+    const filtered = Object.entries(levelsBySize).reduce(
       (acc: Record<string, number[]>, [size, levels]) => {
         acc[size] = levels.filter((level) =>
           filterLevel(level, orderedLevels, {
             showOnlyAvailableLevels,
             hideCompletedLevels,
           })
-        );
+        ).sort((a, b) => (sortDirection === "asc" ? a - b : b - a)); // Sort levels within each size group
         return acc;
       },
       {}
     );
-  }, [showOnlyAvailableLevels, hideCompletedLevels]);
+
+    // Sort the groups by size
+    return Object.fromEntries(
+      Object.entries(filtered).sort(([sizeA], [sizeB]) => {
+        const a = parseInt(sizeA);
+        const b = parseInt(sizeB);
+        return sortDirection === "asc" ? a - b : b - a;
+      })
+    );
+  }, [showOnlyAvailableLevels, hideCompletedLevels, sortDirection]);
 
   return (
     <>

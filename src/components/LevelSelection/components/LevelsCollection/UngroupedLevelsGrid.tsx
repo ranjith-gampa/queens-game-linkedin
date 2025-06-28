@@ -19,18 +19,24 @@ const getArrayOfLevels = () =>
 const getUngroupedLevelFiltered = ({
   showOnlyAvailableLevels,
   hideCompletedLevels,
+  sortDirection = "desc",
 }: LevelSelectionFilters): number[] => {
-  return getArrayOfLevels().filter((level) =>
+  const filteredLevels = getArrayOfLevels().filter((level) =>
     filterLevel(level, orderedLevels, {
       showOnlyAvailableLevels,
       hideCompletedLevels,
     })
+  );
+
+  return filteredLevels.sort((a, b) =>
+    sortDirection === "asc" ? a - b : b - a
   );
 };
 
 const UngroupedLevelsGrid: React.FC<UngroupedLevelsGridProps> = ({
   showOnlyAvailableLevels,
   hideCompletedLevels,
+  sortDirection = "desc",
   className,
 }) => {
   const { t } = useTranslation();
@@ -39,8 +45,9 @@ const UngroupedLevelsGrid: React.FC<UngroupedLevelsGridProps> = ({
       getUngroupedLevelFiltered({
         showOnlyAvailableLevels,
         hideCompletedLevels,
+        sortDirection,
       }),
-    [showOnlyAvailableLevels, hideCompletedLevels]
+    [showOnlyAvailableLevels, hideCompletedLevels, sortDirection]
   );
   return (
     <>
