@@ -12,6 +12,8 @@ import {
 } from "@/utils/localStorage";
 import GroupIcon from "../icons/GroupIcon";
 import UngroupIcon from "../icons/UngroupIcon";
+import SortAscIcon from "../icons/SortAscIcon";
+import SortDescIcon from "../icons/SortDescIcon";
 
 const LevelSelection = () => {
   const [showOnlyAvailableLevels, setShowOnlyAvailableLevels] = useState(false);
@@ -64,10 +66,10 @@ const LevelSelection = () => {
           />
           <button
             onClick={toggleSortDirection}
-            className="hover:bg-muted/20 p-2 rounded w-6 h-6 flex items-center justify-center"
+            className="hover:bg-muted/20 p-2 rounded"
             title={sortDirection === "desc" ? "Sort ascending" : "Sort descending"}
           >
-            <span className="text-2xl leading-none">{sortDirection === "desc" ? "↓" : "↑"}</span>
+            {sortDirection === "desc" ? <SortDescIcon /> : <SortAscIcon />}
           </button>
           <button onClick={toggleGroupBySize}>
             {groupBySize ? <GroupIcon /> : <UngroupIcon />}
