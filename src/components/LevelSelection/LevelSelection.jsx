@@ -64,10 +64,10 @@ const LevelSelection = () => {
           />
           <button
             onClick={toggleSortDirection}
-            className="hover:bg-muted/20 p-2 rounded"
+            className="hover:bg-muted/20 p-2 rounded w-6 h-6 flex items-center justify-center"
             title={sortDirection === "desc" ? "Sort ascending" : "Sort descending"}
           >
-            <span className="text-xl">{sortDirection === "desc" ? "↓" : "↑"}</span>
+            <span className="text-2xl leading-none">{sortDirection === "desc" ? "↓" : "↑"}</span>
           </button>
           <button onClick={toggleGroupBySize}>
             {groupBySize ? <GroupIcon /> : <UngroupIcon />}
