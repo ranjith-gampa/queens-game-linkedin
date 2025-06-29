@@ -9,6 +9,7 @@ import PageBonusLevel from "./pages/PageBonusLevel";
 import PageCommunityLevelsList from "./pages/PageCommunityLevelsList";
 import PageCommunityLevel from "./pages/PageCommunityLevel";
 import PageLevelBuilder from "./pages/PageLevelBuilder";
+import PageProfile from "./pages/PageProfile";
 import PageNotFound from "./pages/PageNotFound";
 import ThemeSwitcher from "./components/ThemeSwitcher";
 import UserIdentificationDialog from "./components/UserIdentificationDialog";
@@ -44,6 +45,7 @@ const App = () => {
               element={<PageCommunityLevel />}
             />
             <Route path="/level-builder" element={<PageLevelBuilder />} />
+            <Route path="/profile" element={<PageProfile />} />
             <Route path="*" element={<PageNotFound />} />
           </Routes>
         </Router>

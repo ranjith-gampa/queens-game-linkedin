@@ -114,5 +114,14 @@
   "CLEAR_ALL": "Clear all",
   "NEW_FASTEST_TIME": "New Fastest Time",
   "FIRST_TIME_COMPLETION": "First Time Completion!",
-  "PREVIOUS_BEST": "Previous Best"
+  "PREVIOUS_BEST": "Previous Best",
+  "PROFILE": "Profile",
+  "GET_RANDOM_AVATAR": "Get Random Avatar",
+  "SAVE_CHANGES": "Save Changes",
+  "Saving...": "Saving...",
+  "Failed to update profile. Please try again.": "Failed to update profile. Please try again.",
+  "Tap to use emoji keyboard": "Tap to use emoji keyboard",
+  "Press Cmd + Ctrl + Space for emoji picker": "Press Cmd + Ctrl + Space for emoji picker",
+  "Press Windows + . for emoji picker": "Press Windows + . for emoji picker",
+  "Or choose from preset avatars": "Or choose from preset avatars"
 }
