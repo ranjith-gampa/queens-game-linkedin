@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import LevelSelectionFilters from "./components/LevelSelectionFilters";
 import LevelsCollection from "./components/LevelsCollection";
 import LinkedInNote from "./components/LinkedInNote";
-import ResetAllProgressDialog from "./components/ResetAllProgressDialog";
+
 import Leaderboard from "@/components/Leaderboard/index";
 import {
   getGroupingPreference,
@@ -26,7 +26,6 @@ const LevelSelection = () => {
   );
   const [groupBySize, setGroupBySize] = useState(getGroupingPreference);
   const [sortDirection, setSortDirection] = useState("desc"); // Add sort direction state
-  const [resetTrigger, setResetTrigger] = useState(false);
 
   useEffect(() => {
     setOnlyAvailableLevelsSwitchDisable(groupBySize || hideCompletedLevels);
@@ -61,9 +60,6 @@ const LevelSelection = () => {
           onCompletedLevelsChange={toggleHideCompletedLevels}
         />
         <div className="flex items-center space-x-3 mx-1">
-          <ResetAllProgressDialog
-            onReset={() => setResetTrigger((prev) => !prev)}
-          />
           <button
             onClick={toggleSortDirection}
             className="hover:bg-muted/20 p-2 rounded"

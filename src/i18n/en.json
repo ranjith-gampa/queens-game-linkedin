@@ -7,6 +7,11 @@
   "AVAILABLE_LEVELS_ONLY": "Available levels only",
   "HELP_IN_FINDING_NEW_LEVELS": "I've added as many levels as I could find. I'd appreciate any help in finding the rest.",
   "ASK_RESET_ALL_PROGRESS": "Are you sure you want to reset all progress?",
+  "RESET_PROGRESS": "Reset Progress",
+  "RESET_PROGRESS_DESCRIPTION": "This will reset all your completed levels and progress. This action cannot be undone.",
+  "RESET_ALL_PROGRESS": "Reset All Progress",
+  "CONFIRM_RESET": "Click again to confirm reset",
+  "PROGRESS_RESET_SUCCESS": "Progress has been reset successfully!",
   "CANCEL": "Cancel",
   "SUPPORT_ME": "Support me",
   "CREATED_BY": "Created by",
@@ -71,6 +76,8 @@
   },
   "YES": "Yes",
   "THEME": {
+    "TITLE": "Theme",
+    "DESCRIPTION": "Choose your preferred theme for the application",
     "DARK": "Dark",
     "LIGHT": "Light"
   },
@@ -123,5 +130,9 @@
   "Tap to use emoji keyboard": "Tap to use emoji keyboard",
   "Press Cmd + Ctrl + Space for emoji picker": "Press Cmd + Ctrl + Space for emoji picker",
   "Press Windows + . for emoji picker": "Press Windows + . for emoji picker",
-  "Or choose from preset avatars": "Or choose from preset avatars"
+  "Or choose from preset avatars": "Or choose from preset avatars",
+  "INSTALL_APP": "Install",
+  "INSTALL_APP_PROMPT": "Install Queens Game for a better experience",
+  "INSTALL_APP_SAFARI_MAC_INSTRUCTIONS": "To install: Click the Share button in Safari's toolbar (square with arrow pointing up), then select 'Add to Dock'",
+  "INSTALL_APP_CHROME_INSTRUCTIONS": "To install: Click the three-dot menu in Chrome's toolbar, then select 'Install Queens Game...'"
 }

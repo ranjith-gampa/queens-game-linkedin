@@ -10,8 +10,9 @@ import PageCommunityLevelsList from "./pages/PageCommunityLevelsList";
 import PageCommunityLevel from "./pages/PageCommunityLevel";
 import PageLevelBuilder from "./pages/PageLevelBuilder";
 import PageProfile from "./pages/PageProfile";
+import PageSettings from "./pages/PageSettings";
 import PageNotFound from "./pages/PageNotFound";
-import ThemeSwitcher from "./components/ThemeSwitcher";
+import InstallBanner from "./components/InstallBanner";
 import UserIdentificationDialog from "./components/UserIdentificationDialog";
 import { hasUserProfile } from "./utils/localStorage";
 import "./App.css";
@@ -46,10 +47,11 @@ const App = () => {
             />
             <Route path="/level-builder" element={<PageLevelBuilder />} />
             <Route path="/profile" element={<PageProfile />} />
+            <Route path="/settings" element={<PageSettings />} />
             <Route path="*" element={<PageNotFound />} />
           </Routes>
         </Router>
-        <ThemeSwitcher />
+        <InstallBanner />
         <UserIdentificationDialog 
           open={showUserIdentificationDialog} 
           onOpenChange={setShowUserIdentificationDialog} 
