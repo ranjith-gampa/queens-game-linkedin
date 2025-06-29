@@ -45,7 +45,7 @@ export async function getTodayLeaderboardEntries(levelType: string, levelId: str
     return mapToLeaderboardEntries(data);
 }
 
-async function insertOrUpdateUser(
+export async function insertOrUpdateUser(
     userId: string,
     username: string,
     avatar: string
