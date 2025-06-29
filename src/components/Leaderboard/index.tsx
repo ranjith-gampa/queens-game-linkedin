@@ -9,12 +9,12 @@ const ROW_LIMIT = 100;
 const Leaderboard = () => {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [activeTab, setActiveTab] = useState<'regular' | 'bonus' | 'community'>('regular');
-  const [timeView, setTimeView] = useState<'today' | 'all-time'>('today');
+  const [timeView, setTimeView] = useState<'today' | 'all-time' | 'my'>('today');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [sortConfig, setSortConfig] = useState<{
-    key: 'levelId' | 'timeSeconds';
+    key: 'levelId' | 'timeSeconds' | 'username' | 'completedAt';
     direction: 'asc' | 'desc';
   }>({ key: 'timeSeconds', direction: 'asc' });
   const [prevEntries, setPrevEntries] = useState<LeaderboardEntry[]>([]);
@@ -36,6 +36,16 @@ const Leaderboard = () => {
           } else {
             setEntries([]);
           }
+        } else if (timeView === 'my') {
+          const userProfile = localStorage.getItem('userProfile');
+          if (!userProfile) {
+            setError('Please set up your profile to view your records');
+            setEntries([]);
+          } else {
+            const { userId } = JSON.parse(userProfile);
+            const data = await getLeaderboardEntries(activeTab, ROW_LIMIT, userId);
+            setEntries(sortEntries(data));
+          }
         } else {
           const data = await getLeaderboardEntries(activeTab, ROW_LIMIT);
           setEntries(sortEntries(data));
@@ -56,7 +66,7 @@ const Leaderboard = () => {
     return new Date(timestamp).toLocaleDateString();
   };
 
-  const handleTimeViewChange = (view: 'today' | 'all-time') => {
+  const handleTimeViewChange = (view: 'today' | 'all-time' | 'my') => {
     setTimeView(view);
     if (view === 'today') {
       setActiveTab('regular');
@@ -65,19 +75,30 @@ const Leaderboard = () => {
 
   const sortEntries = (entriesToSort: LeaderboardEntry[]) => {
     return [...entriesToSort].sort((a, b) => {
-      if (sortConfig.key === 'levelId') {
-        const aLevel = parseInt(a.levelId);
-        const bLevel = parseInt(b.levelId);
-        return sortConfig.direction === 'asc' ? aLevel - bLevel : bLevel - aLevel;
-      } else {
-        return sortConfig.direction === 'asc' 
-          ? a.timeSeconds - b.timeSeconds 
-          : b.timeSeconds - a.timeSeconds;
+      const multiplier = sortConfig.direction === 'asc' ? 1 : -1;
+      
+      switch (sortConfig.key) {
+        case 'levelId':
+          const aLevel = parseInt(a.levelId);
+          const bLevel = parseInt(b.levelId);
+          return multiplier * (aLevel - bLevel);
+          
+        case 'timeSeconds':
+          return multiplier * (a.timeSeconds - b.timeSeconds);
+          
+        case 'username':
+          return multiplier * a.username.localeCompare(b.username);
+          
+        case 'completedAt':
+          return multiplier * (new Date(a.completedAt).getTime() - new Date(b.completedAt).getTime());
+          
+        default:
+          return 0;
       }
     });
   };
 
-  const handleSort = (key: 'levelId' | 'timeSeconds') => {
+  const handleSort = (key: 'levelId' | 'timeSeconds' | 'username' | 'completedAt') => {
     // Calculate new sort config
     const newSortConfig = {
       key,
@@ -112,7 +133,19 @@ const Leaderboard = () => {
           <thead>
             <tr className="border-b border-border">
               <th className="p-2 text-left w-12 text-card-foreground">Rank</th>
-              <th className="p-2 text-left w-40 text-card-foreground">Player</th>
+              <th className="p-2 text-left w-40 text-card-foreground">
+                <button
+                  onClick={() => handleSort('username')}
+                  className="flex items-center gap-1 hover:text-primary"
+                >
+                  Player
+                  {sortConfig.key === 'username' && (
+                    <span className="text-xs">
+                      {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </button>
+              </th>
               <th className="p-2 text-left w-20 text-card-foreground">
                 <button
                   onClick={() => handleSort('levelId')}
@@ -139,7 +172,19 @@ const Leaderboard = () => {
                   )}
                 </button>
               </th>
-              <th className="p-2 text-left w-24 text-card-foreground">Date</th>
+              <th className="p-2 text-left w-24 text-card-foreground">
+                <button
+                  onClick={() => handleSort('completedAt')}
+                  className="flex items-center gap-1 hover:text-primary"
+                >
+                  Date
+                  {sortConfig.key === 'completedAt' && (
+                    <span className="text-xs">
+                      {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </button>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -201,10 +246,20 @@ const Leaderboard = () => {
         >
           All-Time
         </button>
+        <button
+          className={`px-4 py-2 rounded transition-colors border ${
+            timeView === 'my' 
+              ? "bg-primary text-white border-primary" 
+              : "bg-background border-border hover:bg-muted/20"
+          }`}
+          onClick={() => handleTimeViewChange('my')}
+        >
+          My Records
+        </button>
       </div>
 
-      {/* Level type navigation - only show for all-time view */}
-      {timeView === 'all-time' && (
+      {/* Level type navigation - only show for all-time and my view */}
+      {(timeView === 'all-time' || timeView === 'my') && (
         <div className="flex gap-2 mb-4">
           <button
             className={`px-4 py-2 rounded transition-colors border ${

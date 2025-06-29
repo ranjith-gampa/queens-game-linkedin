@@ -16,14 +16,30 @@ function mapToLeaderboardEntries(data: any[]): LeaderboardEntry[] {
     }));
 }
 
-export async function getLeaderboardEntries(levelType: string, rowLimit: number = ROW_LIMIT): Promise<LeaderboardEntry[]> {
-    const { data, error } = await supabase.rpc('get_completion_times', {
-        p_level_type: levelType,
-        num_records: rowLimit
-    });
+export async function getLeaderboardEntries(
+    levelType: string, 
+    rowLimit: number = ROW_LIMIT,
+    userId?: string
+): Promise<LeaderboardEntry[]> {
+    let data, error;
+
+    if (userId) {
+        // Use the user-specific function if userId is provided
+        ({ data, error } = await supabase.rpc('get_completion_times_user', {
+            p_level_type: levelType,
+            p_user_id: userId,
+            num_records: rowLimit
+        }));
+    } else {
+        // Use the general function if no userId is provided
+        ({ data, error } = await supabase.rpc('get_completion_times', {
+            p_level_type: levelType,
+            num_records: rowLimit
+        }));
+    }
 
     if (error) {
-        console.error('Error calling function: get_completion_times', error);
+        console.error('Error calling function:', error);
         return Promise.reject(new Error('Failed to fetch leaderboard entries'));
     }
     
