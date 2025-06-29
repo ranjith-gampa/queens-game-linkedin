@@ -3,7 +3,7 @@ import { useTheme } from "next-themes";
 import { Sun, Moon, ChevronLeft, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-const ThemeSwitcher = () => {
+const ThemeSwitcher = ({ installBannerVisible = false }) => {
   const { theme, setTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef(null);
@@ -37,8 +37,16 @@ const ThemeSwitcher = () => {
 
   const CurrentThemeIcon = theme === "dark" ? Moon : Sun;
 
+  // Don't render at all when install banner is visible
+  if (installBannerVisible) {
+    return null;
+  }
+
   return (
-    <div ref={wrapperRef} className="fixed bottom-4 right-4 z-50">
+    <div 
+      ref={wrapperRef} 
+      className="fixed bottom-8 right-4 z-[90]"
+    >
       {/* Floating Button (Always Visible) */}
       <button
         onClick={toggleOpen}

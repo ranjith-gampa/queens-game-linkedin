@@ -19,6 +19,7 @@ const NAV_LINKS = [
   { to: "/community-levels", labelKey: "COMMUNITY_LEVELS", isNew: true },
   { to: "/level-builder", labelKey: "LEVEL_BUILDER" },
   { to: "/profile", labelKey: "PROFILE" },
+  { to: "/settings", labelKey: "SETTINGS" },
 ];
 
 const Navbar = () => {
