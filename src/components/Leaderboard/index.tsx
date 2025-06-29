@@ -16,6 +16,8 @@ const Leaderboard = () => {
   const [sortConfig, setSortConfig] = useState<{
     key: 'levelId' | 'timeSeconds' | 'username' | 'completedAt';
     direction: 'asc' | 'desc';
+    secondaryKey?: 'levelId' | 'timeSeconds' | 'username' | 'completedAt';
+    secondaryDirection?: 'asc' | 'desc';
   }>({ key: 'timeSeconds', direction: 'asc' });
   const [prevEntries, setPrevEntries] = useState<LeaderboardEntry[]>([]);
 
@@ -100,29 +102,67 @@ const Leaderboard = () => {
 
   const handleSort = (key: 'levelId' | 'timeSeconds' | 'username' | 'completedAt') => {
     // Calculate new sort config
-    const newSortConfig = {
+    const newSortConfig: {
+      key: 'levelId' | 'timeSeconds' | 'username' | 'completedAt';
+      direction: 'asc' | 'desc';
+      secondaryKey?: 'levelId' | 'timeSeconds' | 'username' | 'completedAt';
+      secondaryDirection?: 'asc' | 'desc';
+    } = {
       key,
-      // If switching to a new column, maintain current direction
-      // If clicking same column, toggle direction
       direction: sortConfig.key === key ? 
         (sortConfig.direction === 'asc' ? 'desc' : 'asc') : 
-        sortConfig.direction
+        'asc'
     };
+
+    // If switching from a different column, store it as secondary sort
+    if (sortConfig.key !== key && sortConfig.key !== 'completedAt') {
+      newSortConfig.secondaryKey = sortConfig.key;
+      newSortConfig.secondaryDirection = sortConfig.direction;
+    }
     
-    // Update sort config
     setSortConfig(newSortConfig);
     
-    // Sort with new config immediately
     setEntries(prevEntries => [...prevEntries].sort((a, b) => {
-      if (newSortConfig.key === 'levelId') {
-        const aLevel = parseInt(a.levelId);
-        const bLevel = parseInt(b.levelId);
-        return newSortConfig.direction === 'asc' ? aLevel - bLevel : bLevel - aLevel;
-      } else {
-        return newSortConfig.direction === 'asc' 
-          ? a.timeSeconds - b.timeSeconds 
-          : b.timeSeconds - a.timeSeconds;
+      const compare = (val1: any, val2: any, sortDir: 'asc' | 'desc'): number => {
+        const multiplier = sortDir === 'asc' ? 1 : -1;
+        if (typeof val1 === 'string' && typeof val2 === 'string') {
+          return multiplier * val1.localeCompare(val2);
+        }
+        return multiplier * (val1 - val2);
+      };
+
+      // Primary sort
+      let result = 0;
+      switch (newSortConfig.key) {
+        case 'levelId':
+          result = compare(parseInt(a.levelId), parseInt(b.levelId), newSortConfig.direction);
+          break;
+        case 'timeSeconds':
+          result = compare(a.timeSeconds, b.timeSeconds, newSortConfig.direction);
+          break;
+        case 'username':
+          result = compare(a.username, b.username, newSortConfig.direction);
+          break;
+        case 'completedAt':
+          result = compare(new Date(a.completedAt).getTime(), new Date(b.completedAt).getTime(), newSortConfig.direction);
+          break;
       }
+
+      // If primary sort results in a tie and we have a secondary sort key
+      if (result === 0 && newSortConfig.secondaryKey && newSortConfig.secondaryDirection) {
+        switch (newSortConfig.secondaryKey) {
+          case 'levelId':
+            return compare(parseInt(a.levelId), parseInt(b.levelId), newSortConfig.secondaryDirection);
+          case 'timeSeconds':
+            return compare(a.timeSeconds, b.timeSeconds, newSortConfig.secondaryDirection);
+          case 'username':
+            return compare(a.username, b.username, newSortConfig.secondaryDirection);
+          case 'completedAt':
+            return compare(new Date(a.completedAt).getTime(), new Date(b.completedAt).getTime(), newSortConfig.secondaryDirection);
+        }
+      }
+
+      return result;
     }));
   };
 
