@@ -139,5 +139,11 @@
   "INSTALL_APP": "تثبيت",
   "INSTALL_APP_PROMPT": "قم بتثبيت Queens Game لتجربة أفضل",
   "INSTALL_APP_SAFARI_MAC_INSTRUCTIONS": "للتثبيت: انقر على زر المشاركة في شريط أدوات Safari (مربع بسهم يشير لأعلى)، ثم حدد 'إضافة إلى Dock'",
-  "INSTALL_APP_CHROME_INSTRUCTIONS": "للتثبيت: انقر على قائمة النقاط الثلاث في شريط أدوات Chrome، ثم حدد 'تثبيت Queens Game...'"
+  "INSTALL_APP_CHROME_INSTRUCTIONS": "للتثبيت: انقر على قائمة النقاط الثلاث في شريط أدوات Chrome، ثم حدد 'تثبيت Queens Game...'",
+  "STREAK_DAY_COUNT": "سلسلة انتصارات {{count}} يوم",
+  "STREAK_LOOKS_AMAZING": "سلسلتك تبدو رائعة",
+  "STREAK_BADGES": "الشارات",
+  "STREAK_NOTIFICATIONS": "إشعار للعبة الغد",
+  "STREAK_REQUESTING_PERMISSION": "طلب إذن الإشعارات...",
+  "STREAK_NOTIFICATIONS_BLOCKED": "الإشعارات محجوبة. يرجى تمكينها في إعدادات المتصفح."
 }

@@ -140,5 +140,11 @@
   "INSTALL_APP": "Instalar",
   "INSTALL_APP_PROMPT": "Instala Queens Game para una mejor experiencia",
   "INSTALL_APP_SAFARI_MAC_INSTRUCTIONS": "Para instalar: Haz clic en el botón Compartir en la barra de herramientas de Safari (cuadrado con flecha hacia arriba), luego selecciona 'Añadir al Dock'",
-  "INSTALL_APP_CHROME_INSTRUCTIONS": "Para instalar: Haz clic en el menú de tres puntos en la barra de herramientas de Chrome, luego selecciona 'Instalar Queens Game...'"
+  "INSTALL_APP_CHROME_INSTRUCTIONS": "Para instalar: Haz clic en el menú de tres puntos en la barra de herramientas de Chrome, luego selecciona 'Instalar Queens Game...'",
+  "STREAK_DAY_COUNT": "Racha de {{count}} días ganados",
+  "STREAK_LOOKS_AMAZING": "Tu racha se ve increíble",
+  "STREAK_BADGES": "Insignias",
+  "STREAK_NOTIFICATIONS": "Notificar para el juego de mañana",
+  "STREAK_REQUESTING_PERMISSION": "Solicitando permiso de notificación...",
+  "STREAK_NOTIFICATIONS_BLOCKED": "Las notificaciones están bloqueadas. Por favor habilítalas en la configuración de tu navegador."
 }

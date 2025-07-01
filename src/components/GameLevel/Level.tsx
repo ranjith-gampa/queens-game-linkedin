@@ -129,7 +129,9 @@ const Level: React.FC<LevelProps> = ({ id, level }) => {
       current.timestamp > latest.timestamp ? current : latest
     );
 
-    const COOLDOWN_DURATION = 15 * 60 * 1000; // 30 minutes in milliseconds
+    // Set cooldown duration based on environment
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const COOLDOWN_DURATION = isLocalhost ? 60 * 1000 : 15 * 60 * 1000; // 60s for localhost, 15 minutes for production
     const cooldownEndsAt = latestCompletion.timestamp + COOLDOWN_DURATION;
     const now = Date.now();
     

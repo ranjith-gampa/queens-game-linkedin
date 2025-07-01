@@ -11,10 +11,13 @@ import PageCommunityLevel from "./pages/PageCommunityLevel";
 import PageLevelBuilder from "./pages/PageLevelBuilder";
 import PageProfile from "./pages/PageProfile";
 import PageSettings from "./pages/PageSettings";
+import PageNotificationTest from "./pages/PageNotificationTest";
 import PageNotFound from "./pages/PageNotFound";
 import InstallBanner from "./components/InstallBanner";
 import UserIdentificationDialog from "./components/UserIdentificationDialog";
 import { hasUserProfile } from "./utils/localStorage";
+import { getStreakData } from "./utils/streak";
+import { initializeNotifications } from "./utils/notifications";
 import "./App.css";
 import "./i18n";
 
@@ -25,6 +28,12 @@ const App = () => {
     // Check if user profile exists, if not show the dialog
     if (!hasUserProfile()) {
       setShowUserIdentificationDialog(true);
+    }
+
+    // Initialize notifications if enabled
+    const streakData = getStreakData();
+    if (streakData.notificationsEnabled) {
+      initializeNotifications(true);
     }
   }, []);
 
@@ -48,6 +57,10 @@ const App = () => {
             <Route path="/level-builder" element={<PageLevelBuilder />} />
             <Route path="/profile" element={<PageProfile />} />
             <Route path="/settings" element={<PageSettings />} />
+            {/* Test notifications page - development only */}
+            {import.meta.env.DEV && (
+              <Route path="/test-notifications" element={<PageNotificationTest />} />
+            )}
             <Route path="*" element={<PageNotFound />} />
           </Routes>
         </Router>

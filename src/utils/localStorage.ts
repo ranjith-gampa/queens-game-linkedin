@@ -1,4 +1,5 @@
 export const markLevelAsCompleted = (levelNumber: number) => {
+  if (typeof window === 'undefined') return;
   const completedLevels =
     JSON.parse(localStorage.getItem("completedLevels") as string) || [];
 
@@ -9,6 +10,7 @@ export const markLevelAsCompleted = (levelNumber: number) => {
 };
 
 export const markBonusLevelAsCompleted = (levelId: string) => {
+  if (typeof window === 'undefined') return;
   const completedLevels =
     JSON.parse(localStorage.getItem("completedBonusLevels") as string) || [];
 
@@ -22,6 +24,7 @@ export const markBonusLevelAsCompleted = (levelId: string) => {
 };
 
 export const markCommunityLevelAsCompleted = (levelId: string) => {
+  if (typeof window === 'undefined') return;
   const completedLevels =
     JSON.parse(localStorage.getItem("completedCommunityLevels") as string) ||
     [];
@@ -36,18 +39,21 @@ export const markCommunityLevelAsCompleted = (levelId: string) => {
 };
 
 export const isLevelCompleted = (levelNumber: number) => {
+  if (typeof window === 'undefined') return false;
   const completedLevels =
     JSON.parse(localStorage.getItem("completedLevels") as string) || [];
   return completedLevels.includes(levelNumber);
 };
 
 export const isBonusLevelCompleted = (levelId: string) => {
+  if (typeof window === 'undefined') return false;
   const completedLevels =
     JSON.parse(localStorage.getItem("completedBonusLevels") as string) || [];
   return completedLevels.includes(levelId);
 };
 
 export const isCommunityLevelCompleted = (levelId: string) => {
+  if (typeof window === 'undefined') return false;
   const completedLevels =
     JSON.parse(localStorage.getItem("completedCommunityLevels") as string) ||
     [];
@@ -55,66 +61,89 @@ export const isCommunityLevelCompleted = (levelId: string) => {
 };
 
 export const resetCompletedLevels = () => {
-  localStorage.setItem("completedLevels", JSON.stringify([]));
+  if (typeof window !== 'undefined') {
+    localStorage.setItem("completedLevels", JSON.stringify([]));
+  }
 };
 
 export const setClashingQueensPreference = (enabled: boolean) => {
-  localStorage.setItem("clashingQueensEnabled", JSON.stringify(enabled));
+  if (typeof window !== 'undefined') {
+    localStorage.setItem("clashingQueensEnabled", JSON.stringify(enabled));
+  }
 };
 
 export const getClashingQueensPreference = () => {
+  if (typeof window === 'undefined') return true;
   return (
     JSON.parse(localStorage.getItem("clashingQueensEnabled") as string) ?? true
   ); // Default to true
 };
 
 export const setShowInstructionsPreference = (enabled: boolean) => {
-  localStorage.setItem("showInstructions", JSON.stringify(enabled));
+  if (typeof window !== 'undefined') {
+    localStorage.setItem("showInstructions", JSON.stringify(enabled));
+  }
 };
 
 export const getShowInstructionsPreference = () => {
+  if (typeof window === 'undefined') return true;
   return JSON.parse(localStorage.getItem("showInstructions") as string) ?? true; // Default to true
 };
 
 export const setShowClockPreference = (enabled: boolean) => {
-  localStorage.setItem("showClock", JSON.stringify(enabled));
+  if (typeof window !== 'undefined') {
+    localStorage.setItem("showClock", JSON.stringify(enabled));
+  }
 };
 
 export const getShowClockPreference = () => {
+  if (typeof window === 'undefined') return true;
   return JSON.parse(localStorage.getItem("showClock") as string) ?? true; // Default to true
 };
 
 export const setAutoPlaceXsPreference = (enabled: boolean) => {
-  localStorage.setItem("autoPlaceXs", JSON.stringify(enabled));
+  if (typeof window !== 'undefined') {
+    localStorage.setItem("autoPlaceXs", JSON.stringify(enabled));
+  }
 };
 
 export const getAutoPlaceXsPreference = () => {
+  if (typeof window === 'undefined') return false;
   return JSON.parse(localStorage.getItem("autoPlaceXs") as string) ?? false; // Default to false
 };
 
 export const setGroupingPreference = (enabled: boolean) => {
-  localStorage.setItem("groupBySize", JSON.stringify(enabled));
+  if (typeof window !== 'undefined') {
+    localStorage.setItem("groupBySize", JSON.stringify(enabled));
+  }
 };
 
 export const getGroupingPreference = () => {
+  if (typeof window === 'undefined') return false;
   return JSON.parse(localStorage.getItem("groupBySize") as string) ?? false; // Default to false
 };
 
 export const setBonusLevelsClicked = (clicked: boolean) => {
-  localStorage.setItem("bonusLevelsClicked", JSON.stringify(clicked));
+  if (typeof window !== 'undefined') {
+    localStorage.setItem("bonusLevelsClicked", JSON.stringify(clicked));
+  }
 };
 
 export const getBonusLevelsClicked = () => {
+  if (typeof window === 'undefined') return false;
   return (
     JSON.parse(localStorage.getItem("bonusLevelsClicked") as string) ?? false
   ); // Default to false
 };
 
 export const setCommunityLevelsClicked = (clicked: boolean) => {
-  localStorage.setItem("communityLevelsClicked", JSON.stringify(clicked));
+  if (typeof window !== 'undefined') {
+    localStorage.setItem("communityLevelsClicked", JSON.stringify(clicked));
+  }
 };
 
 export const getCommunityLevelsClicked = () => {
+  if (typeof window === 'undefined') return false;
   return (
     JSON.parse(localStorage.getItem("communityLevelsClicked") as string) ??
     false
@@ -122,20 +151,26 @@ export const getCommunityLevelsClicked = () => {
 };
 
 export const setHideCompletedLevelsPreference = (enabled: boolean) => {
-  localStorage.setItem("hideCompletedLevels", JSON.stringify(enabled));
+  if (typeof window !== 'undefined') {
+    localStorage.setItem("hideCompletedLevels", JSON.stringify(enabled));
+  }
 };
 
 export const getHideCompletedLevelsPreference = () => {
+  if (typeof window === 'undefined') return false;
   return (
     JSON.parse(localStorage.getItem("hideCompletedLevels") as string) ?? false
   ); // Default to false
 };
 
 export const setShowUniqueCommunityLevelsPreference = (enabled: boolean) => {
-  localStorage.setItem("showUniqueCommunityLevels", JSON.stringify(enabled));
+  if (typeof window !== 'undefined') {
+    localStorage.setItem("showUniqueCommunityLevels", JSON.stringify(enabled));
+  }
 };
 
 export const getShowUniqueCommunityLevelsPreference = () => {
+  if (typeof window === 'undefined') return false;
   return (
     JSON.parse(localStorage.getItem("showUniqueCommunityLevels") as string) ??
     false
@@ -143,10 +178,13 @@ export const getShowUniqueCommunityLevelsPreference = () => {
 };
 
 export const setShowMultipleCommunityLevelsPreference = (enabled: boolean) => {
-  localStorage.setItem("showMultipleCommunityLevels", JSON.stringify(enabled));
+  if (typeof window !== 'undefined') {
+    localStorage.setItem("showMultipleCommunityLevels", JSON.stringify(enabled));
+  }
 };
 
 export const getShowMultipleCommunityLevelsPreference = () => {
+  if (typeof window === 'undefined') return false;
   return (
     JSON.parse(localStorage.getItem("showMultipleCommunityLevels") as string) ??
     false
@@ -154,10 +192,13 @@ export const getShowMultipleCommunityLevelsPreference = () => {
 };
 
 export const setShowCompletedCommunityLevelsPreference = (enabled: boolean) => {
-  localStorage.setItem("showCompletedCommunityLevels", JSON.stringify(enabled));
+  if (typeof window !== 'undefined') {
+    localStorage.setItem("showCompletedCommunityLevels", JSON.stringify(enabled));
+  }
 };
 
 export const getShowCompletedCommunityLevelsPreference = () => {
+  if (typeof window === 'undefined') return false;
   return (
     JSON.parse(
       localStorage.getItem("showCompletedCommunityLevels") as string
@@ -168,13 +209,16 @@ export const getShowCompletedCommunityLevelsPreference = () => {
 export const setShowNotCompletedCommunityLevelsPreference = (
   enabled: boolean
 ) => {
-  localStorage.setItem(
-    "showNotCompletedCommunityLevels",
-    JSON.stringify(enabled)
-  );
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(
+      "showNotCompletedCommunityLevels",
+      JSON.stringify(enabled)
+    );
+  }
 };
 
 export const getShowNotCompletedCommunityLevelsPreference = () => {
+  if (typeof window === 'undefined') return false;
   return (
     JSON.parse(
       localStorage.getItem("showNotCompletedCommunityLevels") as string
@@ -201,6 +245,10 @@ export const saveLevelCompletionTime = async (
   time: number,
   levelType: string
 ): Promise<{ isFastest: boolean; previousFastestTime: number | null }> => {
+  if (typeof window === 'undefined') {
+    return { isFastest: false, previousFastestTime: null };
+  }
+  
   const stringId = id.toString();
   const timeSeconds = Math.floor(time);
   const completionTimes: LevelCompletionTime[] =
@@ -285,6 +333,7 @@ export const getLevelCompletionTimes = (
   id: string | number,
   levelType: string
 ): LevelCompletionTime[] => {
+  if (typeof window === 'undefined') return [];
   const stringId = id.toString();
   const completionTimes: LevelCompletionTime[] =
     JSON.parse(localStorage.getItem(LEVEL_COMPLETION_TIMES_KEY) as string) || [];
@@ -297,21 +346,26 @@ export const getLevelCompletionTimes = (
 };
 
 export const getAllLevelCompletionTimes = (): LevelCompletionTime[] => {
+  if (typeof window === 'undefined') return [];
   return (
     JSON.parse(localStorage.getItem(LEVEL_COMPLETION_TIMES_KEY) as string) || []
   );
 };
 
 export const getUserProfile = (): UserProfile | null => {
+  if (typeof window === 'undefined') return null;
   const profileData = localStorage.getItem(USER_PROFILE_KEY);
   return profileData ? JSON.parse(profileData) as UserProfile : null;
 };
 
 export const setUserProfile = (profile: UserProfile): void => {
-  localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(profile));
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(profile));
+  }
 };
 
 export const hasUserProfile = (): boolean => {
+  if (typeof window === 'undefined') return false;
   return localStorage.getItem(USER_PROFILE_KEY) !== null;
 };
 
@@ -320,23 +374,31 @@ const PWA_INSTALL_BANNER_ENABLED_KEY = "pwaInstallBannerEnabled";
 const PWA_OFFLINE_SUPPORT_ENABLED_KEY = "pwaOfflineSupportEnabled";
 
 export const getPWAInstallBannerPreference = (): boolean => {
+  if (typeof window === 'undefined') return true;
   const preference = localStorage.getItem(PWA_INSTALL_BANNER_ENABLED_KEY);
   return preference === null ? true : preference === 'true'; // Default to true (enabled)
 };
 
 export const setPWAInstallBannerPreference = (enabled: boolean): void => {
-  localStorage.setItem(PWA_INSTALL_BANNER_ENABLED_KEY, enabled.toString());
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(PWA_INSTALL_BANNER_ENABLED_KEY, enabled.toString());
+  }
 };
 
 export const getPWAOfflineSupportPreference = (): boolean => {
+  if (typeof window === 'undefined') return false;
   const preference = localStorage.getItem(PWA_OFFLINE_SUPPORT_ENABLED_KEY);
   return preference === null ? false : preference === 'true'; // Default to false (disabled)
 };
 
 export const setPWAOfflineSupportPreference = (enabled: boolean): void => {
-  localStorage.setItem(PWA_OFFLINE_SUPPORT_ENABLED_KEY, enabled.toString());
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(PWA_OFFLINE_SUPPORT_ENABLED_KEY, enabled.toString());
+  }
 };
 
 export const clearPWAInstallBannerDismissal = (): void => {
-  localStorage.removeItem("installBannerDismissedAt");
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem("installBannerDismissedAt");
+  }
 };
