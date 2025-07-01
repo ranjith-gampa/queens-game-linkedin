@@ -8,6 +8,8 @@ if ('serviceWorker' in navigator) {
       const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
       return preference === null ? isDevelopment : preference === 'true';
     })();
+  })
+}
 
 // Register service worker for PWA support
 if ('serviceWorker' in navigator) {
