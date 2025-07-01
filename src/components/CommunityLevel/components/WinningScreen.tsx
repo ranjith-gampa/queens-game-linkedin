@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import CloseIcon from "@/components/icons/CloseIcon";
@@ -34,13 +34,14 @@ const WinningScreen = ({
 
   useEffect(() => {
     if (timer && timer > 0) {
-      const { isFastest, previousFastestTime: prevFastest } = saveLevelCompletionTime(
+      saveLevelCompletionTime(
         levelId,
         timer,
         'community'
-      );
-      setIsFastestTime(isFastest);
-      setPreviousFastestTime(prevFastest);
+      ).then(({ isFastest, previousFastestTime: prevFastest }) => {
+        setIsFastestTime(isFastest);
+        setPreviousFastestTime(prevFastest);
+      });
     }
   }, [timer, levelId]);
 
@@ -78,18 +79,12 @@ const WinningScreen = ({
                 <div className="font-medium text-sm">{t("SOLVE_TIME")}</div>
               </div>
             </div>
-            {isFastestTime && (
+            {isFastestTime && previousFastestTime && (
               <div className="bg-green-600 rounded-md px-3 py-2 border-2 border-yellow-300 w-full text-lg animate-pulse shadow-lg">
-                {previousFastestTime ? (
-                  <>
-                    <div className="font-extrabold">🏆 {t("NEW_FASTEST_TIME")}! 🏆</div>
-                    <div className="text-sm font-medium mt-1">
-                      {t("PREVIOUS_BEST")}: {formatDuration(previousFastestTime)}
-                    </div>
-                  </>
-                ) : (
-                  <div className="font-extrabold">🎉 {t("FIRST_TIME_COMPLETION")} 🎉</div>
-                )}
+                <div className="font-extrabold">🏆 {t("NEW_FASTEST_TIME")}! 🏆</div>
+                <div className="text-sm font-medium mt-1">
+                  {t("PREVIOUS_BEST")}: {formatDuration(previousFastestTime)}
+                </div>
               </div>
             )}
           </>

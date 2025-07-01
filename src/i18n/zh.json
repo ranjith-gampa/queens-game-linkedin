@@ -139,5 +139,11 @@
   "INSTALL_APP": "安装",
   "INSTALL_APP_PROMPT": "安装Queens Game以获得更好的体验",
   "INSTALL_APP_SAFARI_MAC_INSTRUCTIONS": "安装方法：点击Safari工具栏中的分享按钮（带向上箭头的方框），然后选择\"添加到程序坞\"",
-  "INSTALL_APP_CHROME_INSTRUCTIONS": "安装方法：点击Chrome工具栏中的三点菜单，然后选择\"安装Queens Game...\""
+  "INSTALL_APP_CHROME_INSTRUCTIONS": "安装方法：点击Chrome工具栏中的三点菜单，然后选择\"安装Queens Game...\"",
+  "STREAK_DAY_COUNT": "{{count}}天连胜",
+  "STREAK_LOOKS_AMAZING": "你的连胜记录很棒",
+  "STREAK_BADGES": "徽章",
+  "STREAK_NOTIFICATIONS": "提醒明天的游戏",
+  "STREAK_REQUESTING_PERMISSION": "正在请求通知权限...",
+  "STREAK_NOTIFICATIONS_BLOCKED": "通知已被阻止。请在浏览器设置中启用它们。"
 }

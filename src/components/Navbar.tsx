@@ -20,6 +20,8 @@ const NAV_LINKS = [
   { to: "/level-builder", labelKey: "LEVEL_BUILDER" },
   { to: "/profile", labelKey: "PROFILE" },
   { to: "/settings", labelKey: "SETTINGS" },
+  // Add test page only in development
+  ...(import.meta.env.DEV ? [{ to: "/test-notifications", labelKey: "TEST_NOTIFICATIONS" }] : []),
 ];
 
 const Navbar = () => {

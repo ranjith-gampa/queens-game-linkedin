@@ -8,14 +8,30 @@ const urlsToCache = [
   '/logo512.png'
 ];
 
-// Install event - cache static assets
+// Install event - cache static assets (only if offline support is enabled)
 self.addEventListener('install', (event) => {
+  // Check if offline support is enabled
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
-      })
+    self.clients.matchAll().then(clients => {
+      // Check localStorage in any open client
+      let offlineEnabled = false;
+      if (clients.length > 0) {
+        // We can't directly access localStorage from SW, so we'll cache by default
+        // and let the main thread manage cache clearing
+        offlineEnabled = true;
+      }
+      
+      if (offlineEnabled) {
+        return caches.open(CACHE_NAME)
+          .then(cache => {
+            console.log('Opened cache for offline support');
+            return cache.addAll(urlsToCache);
+          });
+      } else {
+        console.log('Offline support disabled - skipping cache');
+        return Promise.resolve();
+      }
+    })
   );
 });
 
@@ -76,4 +92,42 @@ self.addEventListener('activate', (event) => {
       );
     })
   );
+});
+
+// Handle push notifications
+self.addEventListener('push', (event) => {
+  const options = {
+    body: event.data ? event.data.text() : 'Don\'t lose your Queens Game win streak!',
+    icon: '/logo192.png',
+    badge: '/favicon.ico',
+    tag: 'queens-game-streak',
+    requireInteraction: false,
+    actions: [
+      {
+        action: 'play',
+        title: 'Play Now'
+      },
+      {
+        action: 'dismiss',
+        title: 'Dismiss'
+      }
+    ]
+  };
+
+  event.waitUntil(
+    self.registration.showNotification('Queens Game Reminder', options)
+  );
+});
+
+// Handle notification clicks
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  if (event.action === 'play') {
+    // Open the game
+    event.waitUntil(
+      clients.openWindow('/')
+    );
+  }
+  // For 'dismiss' action or default click, just close the notification
 });

@@ -6,10 +6,12 @@ const BASE_DATE = new Date('2024-04-30'); // Game start date
 const INITIAL_LEVEL = 0;
 
 export function getDailyLevelNumber(): number {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Get current date in Pacific Time
+    const now = new Date();
+    const pacificTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Los_Angeles"}));
+    pacificTime.setHours(0, 0, 0, 0);
     
-    const timeDiff = today.getTime() - BASE_DATE.getTime();
+    const timeDiff = pacificTime.getTime() - BASE_DATE.getTime();
     const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
     
     return INITIAL_LEVEL + daysDiff;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import CloseIcon from "../../icons/CloseIcon";
@@ -7,6 +7,10 @@ import goldCrown from "@/assets/gold-crown.svg";
 import goldenChicletBg from "@/assets/golden-chiclet-bg.svg";
 import { getLevelsBySize } from "@/utils/getAvailableLevels";
 import { saveLevelCompletionTime } from "@/utils/localStorage";
+import { getDailyLevelNumber } from "@/utils/getDailyLevel";
+import { updateStreakOnLevelCompletion, saveStreakData, getStreakData } from "@/utils/streak";
+import { initializeNotifications } from "@/utils/notifications";
+import StreakDisplay from "@/components/StreakDisplay";
 
 interface LevelNavigationButtonProps {
   level: number | null;
@@ -49,13 +53,35 @@ const WinningScreen = ({
   const { t } = useTranslation();
   const [isFastestTime, setIsFastestTime] = useState(false);
   const [previousFastestTime, setPreviousFastestTime] = useState<number | null>(null);
+  const [streakData, setStreakData] = useState(getStreakData());
+  const [isDailyLevel, setIsDailyLevel] = useState(false);
 
   const isGroupedBySize = localStorage.getItem("groupBySize") === "true";
 
-  let updatedPreviousLevel = previousLevel;
-  let updatedNextLevel = nextLevel;
+  let updatedPreviousLevel = Array.isArray(previousLevel) ? previousLevel[0] : previousLevel;
+  let updatedNextLevel = Array.isArray(nextLevel) ? nextLevel[0] : nextLevel;
   let previousLevelText = t("PREVIOUS_LEVEL");
   let nextLevelText = t("NEXT_LEVEL");
+
+  // Check if this is today's daily level
+  useEffect(() => {
+    const dailyLevelNumber = getDailyLevelNumber();
+    const isDaily = Number(level) === dailyLevelNumber;
+    setIsDailyLevel(isDaily);
+
+    if (isDaily) {
+      // Update streak for daily level completion
+      const updatedStreak = updateStreakOnLevelCompletion();
+      setStreakData(updatedStreak);
+    }
+  }, [level]);
+
+  const handleNotificationToggle = (enabled: boolean) => {
+    const updatedData = { ...streakData, notificationsEnabled: enabled };
+    setStreakData(updatedData);
+    saveStreakData(updatedData);
+    initializeNotifications(enabled);
+  };
 
   const updateLevelNavigation = () => {
     const levelsBySize = getLevelsBySize();
@@ -93,23 +119,24 @@ const WinningScreen = ({
 
   useEffect(() => {
     if (timer > 0) {
-      const { isFastest, previousFastestTime: prevFastest } = saveLevelCompletionTime(
+      saveLevelCompletionTime(
         Number(level),
         timer,
         'regular'
-      );
-      setIsFastestTime(isFastest);
-      setPreviousFastestTime(prevFastest);
+      ).then(({ isFastest, previousFastestTime: prevFastest }) => {
+        setIsFastestTime(isFastest);
+        setPreviousFastestTime(prevFastest);
+      });
     }
   }, [timer, level]);
 
   return (
     <div
-      className={`absolute flex flex-col items-center justify-center text-center rounded-lg bg-purple text-white text-xl w-72 ${
-        timer ? "h-96" : "h-72"
-      } max-h-full max-w-full font-bold p-2 select-none left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10`}
+      className={`absolute flex flex-col items-center justify-start text-center rounded-lg bg-purple text-white text-xl ${
+        isDailyLevel ? 'w-[420px] max-h-[85vh]' : 'w-80 max-h-[80vh]'
+      } max-w-[95vw] font-bold p-4 select-none left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 overflow-y-auto scrollbar-thin`}
     >
-      <button className="absolute right-3 top-3" onClick={close}>
+      <button className="absolute right-3 top-3 z-20" onClick={close}>
         <CloseIcon />
       </button>
       <img
@@ -123,7 +150,7 @@ const WinningScreen = ({
         {t("YOU_WIN")}
       </div>
 
-      <div className="flex flex-col space-y-3">
+      <div className="flex flex-col space-y-3 w-full">
         {timer > 0 && (
           <>
             <div className="relative flex justify-center">
@@ -137,22 +164,27 @@ const WinningScreen = ({
                 <div className="font-medium text-sm">{t("SOLVE_TIME")}</div>
               </div>
             </div>
-            {isFastestTime && (
+            {isFastestTime && previousFastestTime && (
               <div className="bg-green-600 rounded-md px-3 py-2 border-2 border-yellow-300 w-full text-lg animate-pulse shadow-lg">
-                {previousFastestTime ? (
-                  <>
-                    <div className="font-extrabold">🏆 {t("NEW_FASTEST_TIME")}! 🏆</div>
-                    <div className="text-sm font-medium mt-1">
-                      {t("PREVIOUS_BEST")}: {formatDuration(previousFastestTime)}
-                    </div>
-                  </>
-                ) : (
-                  <div className="font-extrabold">🎉 {t("FIRST_TIME_COMPLETION")} 🎉</div>
-                )}
+                <div className="font-extrabold">🏆 {t("NEW_FASTEST_TIME")}! 🏆</div>
+                <div className="text-sm font-medium mt-1">
+                  {t("PREVIOUS_BEST")}: {formatDuration(previousFastestTime)}
+                </div>
               </div>
             )}
           </>
         )}
+        
+        {/* Show streak display for daily levels */}
+        {isDailyLevel && (
+          <div className="mt-2">
+            <StreakDisplay 
+              streakData={streakData} 
+              onNotificationToggle={handleNotificationToggle}
+            />
+          </div>
+        )}
+        
         <LevelNavigationButton
           level={updatedPreviousLevel}
           text={previousLevelText}

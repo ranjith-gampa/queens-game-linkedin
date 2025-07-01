@@ -40,17 +40,19 @@ const useGameLogic = ({
   const [timer, setTimer] = useState(0);
   const [showWinningScreen, setShowWinningScreen] = useState(false);
   const [clashingQueens, setClashingQueens] = useState<Set<string>>(new Set());
-  const [showClashingQueens, setShowClashingQueens] = useState<boolean>(
-    getClashingQueensPreference
-  );
-  const [showInstructions, setShowInstructions] = useState<boolean>(
-    getShowInstructionsPreference
-  );
-  const [showClock, setShowClock] = useState<boolean>(getShowClockPreference);
-  const [autoPlaceXs, setAutoPlaceXs] = useState<boolean>(
-    getAutoPlaceXsPreference
-  );
+  const [showClashingQueens, setShowClashingQueens] = useState<boolean>(true);
+  const [showInstructions, setShowInstructions] = useState<boolean>(false);
+  const [showClock, setShowClock] = useState<boolean>(true);
+  const [autoPlaceXs, setAutoPlaceXs] = useState<boolean>(true);
   const [timerRunning, setTimerRunning] = useState<boolean>(false);
+
+  // Initialize preferences from localStorage after component mounts
+  useEffect(() => {
+    setShowClashingQueens(getClashingQueensPreference());
+    setShowInstructions(getShowInstructionsPreference());
+    setShowClock(getShowClockPreference());
+    setAutoPlaceXs(getAutoPlaceXsPreference());
+  }, []);
 
   const history = useRef<{ row: number; col: number; symbol: string | null }[]>(
     []
