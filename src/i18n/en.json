@@ -17,6 +17,13 @@
   "CREATED_BY": "Created by",
   "LEVEL_BUILDER": "Level Builder",
   "SETTINGS": "Settings",
+  "PWA_SETTINGS_TITLE": "PWA Settings",
+  "PWA_SETTINGS_DESCRIPTION": "Configure Progressive Web App features",
+  "PWA_INSTALL_BANNER_TITLE": "Install App Banner",
+  "PWA_INSTALL_BANNER_DESCRIPTION": "Show prompts to install the app on your device",
+  "PWA_OFFLINE_SUPPORT_TITLE": "Offline Support",
+  "PWA_OFFLINE_SUPPORT_DESCRIPTION": "Cache app content for offline use (requires page refresh)",
+  "PWA_SETTINGS_REFRESH_REQUIRED": "Please refresh the page for the changes to take effect.",
   "SHOW_CLOCK": "Show clock",
   "AUTO_PLACE_XS": "Auto place X's",
   "SHOW_CLASHING_QUEENS": "Show clashing queens",
@@ -80,6 +87,12 @@
     "DESCRIPTION": "Choose your preferred theme for the application",
     "DARK": "Dark",
     "LIGHT": "Light"
+  },
+  "PWA": {
+    "TITLE": "Progressive Web App",
+    "DESCRIPTION": "Control PWA install prompts and behavior",
+    "INSTALL_BANNER": "Show Install Banner",
+    "INSTALL_BANNER_DESCRIPTION": "Display prompts to install the app as a PWA"
   },
   "SUPPORT_ME_ON_PATREON": "Support me on Patreon",
   "UNDO": "Undo",

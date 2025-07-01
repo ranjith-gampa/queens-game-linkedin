@@ -10,6 +10,13 @@
   "CREATED_BY": "Creado por",
   "LEVEL_BUILDER": "Constructor de Niveles",
   "SETTINGS": "Opciones",
+  "PWA_SETTINGS_TITLE": "Configuración PWA",
+  "PWA_SETTINGS_DESCRIPTION": "Configurar funciones de la aplicación web progresiva",
+  "PWA_INSTALL_BANNER_TITLE": "Banner de Instalación",
+  "PWA_INSTALL_BANNER_DESCRIPTION": "Mostrar avisos para instalar la aplicación en tu dispositivo",
+  "PWA_OFFLINE_SUPPORT_TITLE": "Soporte Sin Conexión",
+  "PWA_OFFLINE_SUPPORT_DESCRIPTION": "Guardar contenido para uso sin conexión (requiere actualizar página)",
+  "PWA_SETTINGS_REFRESH_REQUIRED": "Por favor, actualiza la página para que los cambios surtan efecto.",
   "SHOW_CLOCK": "Mostrar relog",
   "AUTO_PLACE_XS": "Colocar X automáticamente",
   "SHOW_CLASHING_QUEENS": "Mostrar reinas en conflicto",
@@ -69,8 +76,16 @@
   },
   "YES": "Sí",
   "THEME": {
+    "TITLE": "Tema",
+    "DESCRIPTION": "Elige tu tema preferido para la aplicación",
     "DARK": "Oscuro",
     "LIGHT": "Claro"
+  },
+  "PWA": {
+    "TITLE": "Aplicación Web Progresiva",
+    "DESCRIPTION": "Controla los avisos de instalación de PWA y comportamiento",
+    "INSTALL_BANNER": "Mostrar Banner de Instalación",
+    "INSTALL_BANNER_DESCRIPTION": "Mostrar avisos para instalar la aplicación como PWA"
   },
   "SUPPORT_ME_ON_PATREON": "Apóyame en Patreon",
   "UNDO": "Deshacer",
@@ -109,5 +124,21 @@
   "MULTIPLE_SOLUTIONS": "Múltiples soluciones",
   "COMPLETED": "Completado",
   "NOT_COMPLETED": "No completado",
-  "CLEAR_ALL": "Borrar todo"
+  "CLEAR_ALL": "Borrar todo",
+  "NEW_FASTEST_TIME": "Nuevo Tiempo Más Rápido",
+  "FIRST_TIME_COMPLETION": "¡Primera Vez Completado!",
+  "PREVIOUS_BEST": "Mejor Anterior",
+  "PROFILE": "Perfil",
+  "GET_RANDOM_AVATAR": "Obtener Avatar Aleatorio",
+  "SAVE_CHANGES": "Guardar Cambios",
+  "Saving...": "Guardando...",
+  "Failed to update profile. Please try again.": "Error al actualizar el perfil. Por favor, inténtalo de nuevo.",
+  "Tap to use emoji keyboard": "Toca para usar el teclado de emojis",
+  "Press Cmd + Ctrl + Space for emoji picker": "Presiona Cmd + Ctrl + Space para el selector de emojis",
+  "Press Windows + . for emoji picker": "Presiona Windows + . para el selector de emojis",
+  "Or choose from preset avatars": "O elige de los avatares predefinidos",
+  "INSTALL_APP": "Instalar",
+  "INSTALL_APP_PROMPT": "Instala Queens Game para una mejor experiencia",
+  "INSTALL_APP_SAFARI_MAC_INSTRUCTIONS": "Para instalar: Haz clic en el botón Compartir en la barra de herramientas de Safari (cuadrado con flecha hacia arriba), luego selecciona 'Añadir al Dock'",
+  "INSTALL_APP_CHROME_INSTRUCTIONS": "Para instalar: Haz clic en el menú de tres puntos en la barra de herramientas de Chrome, luego selecciona 'Instalar Queens Game...'"
 }

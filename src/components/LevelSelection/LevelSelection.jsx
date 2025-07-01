@@ -59,7 +59,7 @@ const LevelSelection = () => {
           }
           onCompletedLevelsChange={toggleHideCompletedLevels}
         />
-        <div className="flex items-center space-x-3 mx-1">
+        <div className="flex items-center space-x-1 mx-1">
           <button
             onClick={toggleSortDirection}
             className="hover:bg-muted/20 p-2 rounded"

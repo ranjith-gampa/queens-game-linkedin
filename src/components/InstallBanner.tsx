@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
 import { X } from "lucide-react";
 import { isMobile, isMac } from "@/utils/platform";
+import { getPWAInstallBannerPreference } from "@/utils/localStorage";
 
 const INSTALL_BANNER_DISMISSED_KEY = "installBannerDismissedAt";
 const DISMISS_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
@@ -18,6 +19,10 @@ const InstallBanner = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
+    // Check if PWA install banner is enabled in settings (disabled by default)
+    const isPWABannerEnabled = getPWAInstallBannerPreference();
+    if (!isPWABannerEnabled) return;
+
     // Check if already installed as PWA
     const isPWA = window.matchMedia('(display-mode: standalone)').matches;
     if (isPWA) return;
