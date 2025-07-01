@@ -168,12 +168,12 @@ const Leaderboard = () => {
 
   const renderLeaderboardContent = (data: LeaderboardEntry[]) => (
     data.length > 0 ? (
-      <div className="overflow-x-auto">
-        <table className="w-full">
+      <div className="overflow-x-auto w-full">
+        <table className="min-w-full">
           <thead>
             <tr className="border-b border-border">
-              <th className="p-2 text-left w-12 text-card-foreground">Rank</th>
-              <th className="p-2 text-left w-40 text-card-foreground">
+              <th className="p-2 text-left whitespace-nowrap text-card-foreground">Rank</th>
+              <th className="p-2 text-left whitespace-nowrap text-card-foreground">
                 <button
                   onClick={() => handleSort('username')}
                   className="flex items-center gap-1 hover:text-primary"
@@ -186,7 +186,7 @@ const Leaderboard = () => {
                   )}
                 </button>
               </th>
-              <th className="p-2 text-left w-20 text-card-foreground">
+              <th className="p-2 text-left whitespace-nowrap text-card-foreground">
                 <button
                   onClick={() => handleSort('levelId')}
                   className="flex items-center gap-1 hover:text-primary"
@@ -199,7 +199,7 @@ const Leaderboard = () => {
                   )}
                 </button>
               </th>
-              <th className="p-2 text-left w-24 text-card-foreground">
+              <th className="p-2 text-left whitespace-nowrap text-card-foreground">
                 <button
                   onClick={() => handleSort('timeSeconds')}
                   className="flex items-center gap-1 hover:text-primary"
@@ -212,7 +212,7 @@ const Leaderboard = () => {
                   )}
                 </button>
               </th>
-              <th className="p-2 text-left w-24 text-card-foreground">
+              <th className="p-2 text-left whitespace-nowrap text-card-foreground">
                 <button
                   onClick={() => handleSort('completedAt')}
                   className="flex items-center gap-1 hover:text-primary"
@@ -233,16 +233,16 @@ const Leaderboard = () => {
                 key={`${entry.id}`}
                 className="border-b border-border text-card-foreground"
               >
-                <td className="p-2">{index + 1}</td>
-                <td className="p-2">
+                <td className="p-2 whitespace-nowrap">{index + 1}</td>
+                <td className="p-2 whitespace-nowrap">
                   <div className="flex items-center gap-2">
                     <span className="text-xl">{entry.avatar}</span>
                     <span>{entry.username}</span>
                   </div>
                 </td>
-                <td className="p-2">{entry.levelId}</td>
-                <td className="p-2">{formatDuration(entry.timeSeconds)}</td>
-                <td className="p-2">{formatDate(entry.completedAt)}</td>
+                <td className="p-2 whitespace-nowrap">{entry.levelId}</td>
+                <td className="p-2 whitespace-nowrap">{formatDuration(entry.timeSeconds)}</td>
+                <td className="p-2 whitespace-nowrap">{formatDate(entry.completedAt)}</td>
               </tr>
             ))}
           </tbody>
@@ -261,76 +261,81 @@ const Leaderboard = () => {
   );
 
   return (
-    <div className="w-full max-w-[calc(100%-32px)] mx-auto bg-background text-card-foreground rounded-lg p-4 mt-8 shadow-md">
+    <div className="w-full max-w-[calc(100vw-32px)] mx-auto bg-background text-card-foreground rounded-lg p-4 mt-8 shadow-md overflow-hidden"
+         style={{ maxWidth: 'calc(100vw - 32px)' }}>
       <h2 className="text-2xl font-bold mb-4">Leaderboard</h2>
       
       {/* Time view navigation */}
-      <div className="flex gap-2 mb-4">
-        <button
-          className={`px-4 py-2 rounded transition-colors border ${
-            timeView === 'today' 
-              ? "bg-primary text-white border-primary" 
-              : "bg-background border-border hover:bg-muted/20"
-          }`}
-          onClick={() => handleTimeViewChange('today')}
-        >
-          Daily Level
-        </button>
-        <button
-          className={`px-4 py-2 rounded transition-colors border ${
-            timeView === 'all-time' 
-              ? "bg-primary text-white border-primary" 
-              : "bg-background border-border hover:bg-muted/20"
-          }`}
-          onClick={() => handleTimeViewChange('all-time')}
-        >
-          All-Time
-        </button>
-        <button
-          className={`px-4 py-2 rounded transition-colors border ${
-            timeView === 'my' 
-              ? "bg-primary text-white border-primary" 
-              : "bg-background border-border hover:bg-muted/20"
-          }`}
-          onClick={() => handleTimeViewChange('my')}
-        >
-          My Records
-        </button>
+      <div className="overflow-x-auto mb-4 w-full">
+        <div className="flex gap-2 min-w-max">
+          <button
+            className={`px-4 py-2 rounded transition-colors border whitespace-nowrap ${
+              timeView === 'today' 
+                ? "bg-primary text-white border-primary" 
+                : "bg-background border-border hover:bg-muted/20"
+            }`}
+            onClick={() => handleTimeViewChange('today')}
+          >
+            Daily Level
+          </button>
+          <button
+            className={`px-4 py-2 rounded transition-colors border whitespace-nowrap ${
+              timeView === 'all-time' 
+                ? "bg-primary text-white border-primary" 
+                : "bg-background border-border hover:bg-muted/20"
+            }`}
+            onClick={() => handleTimeViewChange('all-time')}
+          >
+            All-Time
+          </button>
+          <button
+            className={`px-4 py-2 rounded transition-colors border whitespace-nowrap ${
+              timeView === 'my' 
+                ? "bg-primary text-white border-primary" 
+                : "bg-background border-border hover:bg-muted/20"
+            }`}
+            onClick={() => handleTimeViewChange('my')}
+          >
+            My Records
+          </button>
+        </div>
       </div>
 
       {/* Level type navigation - only show for all-time and my view */}
       {(timeView === 'all-time' || timeView === 'my') && (
-        <div className="flex gap-2 mb-4">
-          <button
-            className={`px-4 py-2 rounded transition-colors border ${
-              activeTab === 'regular' 
-                ? "bg-primary text-white border-primary" 
-                : "bg-background border-border hover:bg-muted/20"
-            }`}
-            onClick={() => setActiveTab('regular')}
-          >
-            Regular Levels
-          </button>
-          <button
-            className={`px-4 py-2 rounded transition-colors border ${
-              activeTab === 'bonus' 
-                ? "bg-primary text-white border-primary" 
-                : "bg-background border-border hover:bg-muted/20"
-            }`}
-            onClick={() => setActiveTab('bonus')}
-          >
-            Bonus Levels
-          </button>
-          <button
-            className={`px-4 py-2 rounded transition-colors border ${
-              activeTab === 'community' 
-                ? "bg-primary text-white border-primary" 
-                : "bg-background border-border hover:bg-muted/20"
-            }`}
-            onClick={() => setActiveTab('community')}
-          >
-            Community Levels
-          </button>
+        <div className="overflow-x-auto mb-4 w-full">
+          <div className="flex gap-2 min-w-max">
+            <button
+              className={`px-4 py-2 rounded transition-colors border whitespace-nowrap ${
+                activeTab === 'regular' 
+                  ? "bg-primary text-white border-primary" 
+                  : "bg-background border-border hover:bg-muted/20"
+              }`}
+              onClick={() => setActiveTab('regular')}
+            >
+              Regular Levels
+            </button>
+            <button
+              className={`px-4 py-2 rounded transition-colors border whitespace-nowrap ${
+                activeTab === 'bonus' 
+                  ? "bg-primary text-white border-primary" 
+                  : "bg-background border-border hover:bg-muted/20"
+              }`}
+              onClick={() => setActiveTab('bonus')}
+            >
+              Bonus Levels
+            </button>
+            <button
+              className={`px-4 py-2 rounded transition-colors border whitespace-nowrap ${
+                activeTab === 'community' 
+                  ? "bg-primary text-white border-primary" 
+                  : "bg-background border-border hover:bg-muted/20"
+              }`}
+              onClick={() => setActiveTab('community')}
+            >
+              Community Levels
+            </button>
+          </div>
         </div>
       )}
 
