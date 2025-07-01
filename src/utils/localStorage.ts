@@ -314,3 +314,29 @@ export const setUserProfile = (profile: UserProfile): void => {
 export const hasUserProfile = (): boolean => {
   return localStorage.getItem(USER_PROFILE_KEY) !== null;
 };
+
+// PWA Settings
+const PWA_INSTALL_BANNER_ENABLED_KEY = "pwaInstallBannerEnabled";
+const PWA_OFFLINE_SUPPORT_ENABLED_KEY = "pwaOfflineSupportEnabled";
+
+export const getPWAInstallBannerPreference = (): boolean => {
+  const preference = localStorage.getItem(PWA_INSTALL_BANNER_ENABLED_KEY);
+  return preference === null ? true : preference === 'true'; // Default to true (enabled)
+};
+
+export const setPWAInstallBannerPreference = (enabled: boolean): void => {
+  localStorage.setItem(PWA_INSTALL_BANNER_ENABLED_KEY, enabled.toString());
+};
+
+export const getPWAOfflineSupportPreference = (): boolean => {
+  const preference = localStorage.getItem(PWA_OFFLINE_SUPPORT_ENABLED_KEY);
+  return preference === null ? false : preference === 'true'; // Default to false (disabled)
+};
+
+export const setPWAOfflineSupportPreference = (enabled: boolean): void => {
+  localStorage.setItem(PWA_OFFLINE_SUPPORT_ENABLED_KEY, enabled.toString());
+};
+
+export const clearPWAInstallBannerDismissal = (): void => {
+  localStorage.removeItem("installBannerDismissedAt");
+};

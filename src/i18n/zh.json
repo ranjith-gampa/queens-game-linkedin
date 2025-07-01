@@ -9,6 +9,13 @@
   "CREATED_BY": "创建者",
   "LEVEL_BUILDER": "级别构建器",
   "SETTINGS": "设置",
+  "PWA_SETTINGS_TITLE": "PWA设置",
+  "PWA_SETTINGS_DESCRIPTION": "配置渐进式网页应用功能",
+  "PWA_INSTALL_BANNER_TITLE": "安装应用横幅",
+  "PWA_INSTALL_BANNER_DESCRIPTION": "显示安装应用到设备的提示",
+  "PWA_OFFLINE_SUPPORT_TITLE": "离线支持",
+  "PWA_OFFLINE_SUPPORT_DESCRIPTION": "缓存应用内容以供离线使用（需要刷新页面）",
+  "PWA_SETTINGS_REFRESH_REQUIRED": "请刷新页面以使更改生效。",
   "SHOW_CLOCK": "显示时钟",
   "AUTO_PLACE_XS": "自动放置X",
   "SHOW_CLASHING_QUEENS": "显示冲突的皇后",
@@ -68,8 +75,16 @@
   },
   "YES": "是",
   "THEME": {
+    "TITLE": "主题",
+    "DESCRIPTION": "选择您偏好的应用程序主题",
     "DARK": "深色",
     "LIGHT": "浅色"
+  },
+  "PWA": {
+    "TITLE": "渐进式网页应用",
+    "DESCRIPTION": "控制PWA安装提示和行为",
+    "INSTALL_BANNER": "显示安装横幅",
+    "INSTALL_BANNER_DESCRIPTION": "显示安装应用为PWA的提示"
   },
   "SUPPORT_ME_ON_PATREON": "在Patreon上支持我",
   "UNDO": "撤销",
@@ -108,5 +123,21 @@
   "MULTIPLE_SOLUTIONS": "多解",
   "COMPLETED": "已完成",
   "NOT_COMPLETED": "未完成",
-  "CLEAR_ALL": "全部清除"
+  "CLEAR_ALL": "全部清除",
+  "NEW_FASTEST_TIME": "新最快时间",
+  "FIRST_TIME_COMPLETION": "首次完成！",
+  "PREVIOUS_BEST": "之前最佳",
+  "PROFILE": "个人资料",
+  "GET_RANDOM_AVATAR": "获取随机头像",
+  "SAVE_CHANGES": "保存更改",
+  "Saving...": "保存中...",
+  "Failed to update profile. Please try again.": "更新个人资料失败。请再试一次。",
+  "Tap to use emoji keyboard": "点击使用表情符号键盘",
+  "Press Cmd + Ctrl + Space for emoji picker": "按 Cmd + Ctrl + Space 打开表情符号选择器",
+  "Press Windows + . for emoji picker": "按 Windows + . 打开表情符号选择器",
+  "Or choose from preset avatars": "或从预设头像中选择",
+  "INSTALL_APP": "安装",
+  "INSTALL_APP_PROMPT": "安装Queens Game以获得更好的体验",
+  "INSTALL_APP_SAFARI_MAC_INSTRUCTIONS": "安装方法：点击Safari工具栏中的分享按钮（带向上箭头的方框），然后选择\"添加到程序坞\"",
+  "INSTALL_APP_CHROME_INSTRUCTIONS": "安装方法：点击Chrome工具栏中的三点菜单，然后选择\"安装Queens Game...\""
 }
