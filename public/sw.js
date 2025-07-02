@@ -8,30 +8,14 @@ const urlsToCache = [
   '/logo512.png'
 ];
 
-// Install event - cache static assets (only if offline support is enabled)
+// Install event - cache static assets
 self.addEventListener('install', (event) => {
-  // Check if offline support is enabled
   event.waitUntil(
-    self.clients.matchAll().then(clients => {
-      // Check localStorage in any open client
-      let offlineEnabled = false;
-      if (clients.length > 0) {
-        // We can't directly access localStorage from SW, so we'll cache by default
-        // and let the main thread manage cache clearing
-        offlineEnabled = true;
-      }
-      
-      if (offlineEnabled) {
-        return caches.open(CACHE_NAME)
-          .then(cache => {
-            console.log('Opened cache for offline support');
-            return cache.addAll(urlsToCache);
-          });
-      } else {
-        console.log('Offline support disabled - skipping cache');
-        return Promise.resolve();
-      }
-    })
+    caches.open(CACHE_NAME)
+      .then(cache => {
+        console.log('Opened cache');
+        return cache.addAll(urlsToCache);
+      })
   );
 });
 

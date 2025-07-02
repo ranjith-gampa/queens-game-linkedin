@@ -16,7 +16,7 @@ import PageNotFound from "./pages/PageNotFound";
 import InstallBanner from "./components/InstallBanner";
 import UserIdentificationDialog from "./components/UserIdentificationDialog";
 import { hasUserProfile } from "./utils/localStorage";
-import { getStreakData } from "./utils/streak";
+import { initializeStreakData } from "./utils/streak";
 import { initializeNotifications } from "./utils/notifications";
 import "./App.css";
 import "./i18n";
@@ -30,11 +30,25 @@ const App = () => {
       setShowUserIdentificationDialog(true);
     }
 
-    // Initialize notifications if enabled
-    const streakData = getStreakData();
-    if (streakData.notificationsEnabled) {
-      initializeNotifications(true);
-    }
+    // Initialize streak data (with historical calculation if needed) and notifications
+    const initializeApp = async () => {
+      try {
+        const streakData = await initializeStreakData();
+        if (streakData.notificationsEnabled) {
+          initializeNotifications(true);
+        }
+      } catch (error) {
+        console.error('Error initializing app:', error);
+        // Fall back to regular streak initialization if historical calculation fails
+        const { getStreakData } = await import("./utils/streak");
+        const fallbackStreakData = getStreakData();
+        if (fallbackStreakData.notificationsEnabled) {
+          initializeNotifications(true);
+        }
+      }
+    };
+
+    initializeApp();
   }, []);
 
   return (

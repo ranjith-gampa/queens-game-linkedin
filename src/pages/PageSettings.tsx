@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useTheme } from "next-themes";
-import { Sun, Moon, Smartphone, Wifi, WifiOff } from "lucide-react";
+import { Sun, Moon, Smartphone, Wifi, WifiOff, Bell, BellOff } from "lucide-react";
 import RootLayout from "@/layouts/RootLayout";
 import PageTitle from "@/components/PageTitle";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,8 @@ import {
   setPWAOfflineSupportPreference,
   clearPWAInstallBannerDismissal 
 } from "@/utils/localStorage";
+import { getStreakData, saveStreakData } from "@/utils/streak";
+import { initializeNotifications, cancelStreakReminders } from "@/utils/notifications";
 import { useState, useEffect } from "react";
 
 const PageSettings = () => {
@@ -21,10 +23,17 @@ const PageSettings = () => {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [pwaInstallBannerEnabled, setPWAInstallBannerEnabled] = useState(false);
   const [pwaOfflineSupportEnabled, setPWAOfflineSupportEnabled] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
 
   useEffect(() => {
     setPWAInstallBannerEnabled(getPWAInstallBannerPreference());
     setPWAOfflineSupportEnabled(getPWAOfflineSupportPreference());
+    
+    // Initialize notification settings
+    const streakData = getStreakData();
+    setNotificationsEnabled(streakData.notificationsEnabled);
+    setNotificationPermission(typeof window !== 'undefined' ? Notification.permission : 'default');
   }, []);
 
   const handleTogglePWAInstallBanner = (enabled: boolean) => {
@@ -42,6 +51,31 @@ const PageSettings = () => {
     // Show alert to user that they need to refresh the page
     if (enabled !== getPWAOfflineSupportPreference()) {
       alert(t("PWA_SETTINGS_REFRESH_REQUIRED") || "Please refresh the page for the changes to take effect.");
+    }
+  };
+
+  const handleToggleNotifications = async (enabled: boolean) => {
+    if (enabled) {
+      // Request permission and initialize notifications
+      try {
+        await initializeNotifications(true);
+        const streakData = getStreakData();
+        const updatedData = { ...streakData, notificationsEnabled: true };
+        saveStreakData(updatedData);
+        setNotificationsEnabled(true);
+        setNotificationPermission(Notification.permission);
+      } catch (error) {
+        console.error('Failed to initialize notifications:', error);
+        setNotificationsEnabled(false);
+        setNotificationPermission(Notification.permission);
+      }
+    } else {
+      // Disable notifications
+      cancelStreakReminders();
+      const streakData = getStreakData();
+      const updatedData = { ...streakData, notificationsEnabled: false };
+      saveStreakData(updatedData);
+      setNotificationsEnabled(false);
     }
   };
 
@@ -133,6 +167,47 @@ const PageSettings = () => {
                   onCheckedChange={handleTogglePWAOfflineSupport}
                 />
               </div>
+            </div>
+          </div>
+
+          {/* Notification Settings */}
+          <div className="bg-card rounded-lg p-6 shadow-sm">
+            <h2 className="text-xl font-semibold mb-4 flex items-center">
+              {notificationsEnabled ? <Bell className="mr-2" size={24} /> : <BellOff className="mr-2" size={24} />}
+              {t("STREAK_NOTIFICATIONS_TITLE") || "Streak Reminders"}
+            </h2>
+            <p className="text-muted-foreground mb-6">
+              {t("STREAK_NOTIFICATIONS_DESCRIPTION") || "Get daily reminders at 9am and 9pm to maintain your streak"}
+            </p>
+            
+            <div className="space-y-4">
+              {/* Daily Reminders Setting */}
+              <div className="flex items-center justify-between p-3 rounded-lg border">
+                <div className="flex-1">
+                  <h3 className="font-medium">{t("STREAK_DAILY_REMINDERS") || "Daily Reminders"}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {notificationPermission === 'granted' 
+                      ? (t("STREAK_REMINDERS_ENABLED_DESC") || "Receive notifications to keep your streak alive")
+                      : notificationPermission === 'denied'
+                      ? (t("STREAK_REMINDERS_DENIED_DESC") || "Notifications blocked. Enable in browser settings to receive reminders.")
+                      : (t("STREAK_REMINDERS_PERMISSION_DESC") || "Enable notifications to receive daily streak reminders")
+                    }
+                  </p>
+                </div>
+                <Switch
+                  checked={notificationsEnabled && notificationPermission === 'granted'}
+                  onCheckedChange={handleToggleNotifications}
+                  disabled={notificationPermission === 'denied'}
+                />
+              </div>
+
+              {notificationPermission === 'denied' && (
+                <div className="p-3 rounded-lg bg-muted border-l-4 border-yellow-500">
+                  <p className="text-sm">
+                    {t("STREAK_PERMISSION_DENIED_HELP") || "To enable notifications, go to your browser settings and allow notifications for this site, then refresh the page."}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 

@@ -30,7 +30,10 @@ const StreakDisplay: React.FC<StreakDisplayProps> = ({ streakData, onNotificatio
         onNotificationToggle(false);
       }
     } else {
+      // Update the parent state first
       onNotificationToggle(enabled);
+      
+      // Then handle the actual notification scheduling/canceling
       if (enabled && notificationPermission.granted) {
         scheduleStreakReminders();
       } else if (!enabled) {
