@@ -19,6 +19,7 @@ This document records all changes made to implement a LinkedIn-style play streak
 - ✅ Local push notifications at 9am and 9pm Pacific
 - ✅ Display streak info only in daily level winning screens
 - ✅ Request notification authorization with user toggle
+- ✅ **Historical streak calculation for existing users from database records**
 
 ### UI/UX Enhancements
 - ✅ 1×N horizontal layout for badges (not 3×3 grid)
@@ -44,6 +45,8 @@ This document records all changes made to implement a LinkedIn-style play streak
   - Weekly progress arrays (7 booleans for each day)
   - Pacific Time date handling for consistency
   - localStorage persistence with SSR safety
+  - **Historical streak calculation from database records**
+  - **Smart initialization to avoid redundant DB calls**
 
 - **`src/utils/notifications.ts`**
   - Web Push API integration with permission handling
@@ -155,11 +158,23 @@ This document records all changes made to implement a LinkedIn-style play streak
 ### App Integration
 - **`src/App.jsx`**
   ```diff
-  + // Added notification initialization on app load
-  + const streakData = getStreakData();
-  + if (streakData.notificationsEnabled) {
-  +   initializeNotifications(true);
-  + }
+  + // Added historical streak initialization with fallback
+  + import { initializeStreakData } from "./utils/streak";
+  + const initializeApp = async () => {
+  +   try {
+  +     const streakData = await initializeStreakData();
+  +     if (streakData.notificationsEnabled) {
+  +       initializeNotifications(true);
+  +     }
+  +   } catch (error) {
+  +     // Fall back to regular streak initialization if historical calculation fails
+  +     const { getStreakData } = await import("./utils/streak");
+  +     const fallbackStreakData = getStreakData();
+  +     if (fallbackStreakData.notificationsEnabled) {
+  +       initializeNotifications(true);
+  +     }
+  +   }
+  + };
   + // Added development-only test page route
   + {import.meta.env.DEV && (
   +   <Route path="/test-notifications" element={<PageNotificationTest />} />

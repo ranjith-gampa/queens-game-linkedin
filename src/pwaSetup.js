@@ -8,19 +8,6 @@ if ('serviceWorker' in navigator) {
       const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
       return preference === null ? isDevelopment : preference === 'true';
     })();
-  })
-}
-
-// Register service worker for PWA support
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', async () => {
-    // Check if offline support is enabled in settings (disabled by default, but enabled in development)
-    const offlineSupportEnabled = (() => {
-      const preference = localStorage.getItem("pwaOfflineSupportEnabled");
-      // Enable in development mode by default, respect user preference otherwise
-      const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      return preference === null ? isDevelopment : preference === 'true';
-    })();
 
     // Always register service worker for notifications, but handle caching based on offline preference
     try {

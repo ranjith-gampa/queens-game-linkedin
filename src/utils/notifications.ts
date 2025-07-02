@@ -143,8 +143,8 @@ export function initializeNotifications(enabled: boolean): void {
   }
 
   if (!enabled) {
-    // Cancel reminders when notifications are disabled
-    cancelStreakReminders();
+    // Only cancel if there were previously scheduled reminders
+    // This prevents unnecessary "clearing" logs when just initializing
     return;
   }
 

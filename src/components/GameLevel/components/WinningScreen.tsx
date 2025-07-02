@@ -53,8 +53,34 @@ const WinningScreen = ({
   const { t } = useTranslation();
   const [isFastestTime, setIsFastestTime] = useState(false);
   const [previousFastestTime, setPreviousFastestTime] = useState<number | null>(null);
-  const [streakData, setStreakData] = useState(getStreakData());
   const [isDailyLevel, setIsDailyLevel] = useState(false);
+  
+  // Initialize streak data - will be updated in useEffect for daily levels
+  const [streakData, setStreakData] = useState(() => {
+    const dailyLevelNumber = getDailyLevelNumber();
+    const isDaily = Number(level) === dailyLevelNumber;
+    
+    if (isDaily) {
+      // For daily levels, update streak immediately and return the updated data
+      const updatedStreak = updateStreakOnLevelCompletion();
+      return updatedStreak;
+    } else {
+      // For non-daily levels, just return current streak data
+      return getStreakData();
+    }
+  });
+
+  // Ensure we always have the latest streak data after any updates
+  useEffect(() => {
+    const dailyLevelNumber = getDailyLevelNumber();
+    const isDaily = Number(level) === dailyLevelNumber;
+    
+    if (isDaily) {
+      // Re-fetch the latest data to ensure we have the most current state
+      const latestData = getStreakData();
+      setStreakData(latestData);
+    }
+  }, [level]);
 
   const isGroupedBySize = localStorage.getItem("groupBySize") === "true";
 
@@ -63,17 +89,11 @@ const WinningScreen = ({
   let previousLevelText = t("PREVIOUS_LEVEL");
   let nextLevelText = t("NEXT_LEVEL");
 
-  // Check if this is today's daily level
+  // Set daily level flag
   useEffect(() => {
     const dailyLevelNumber = getDailyLevelNumber();
     const isDaily = Number(level) === dailyLevelNumber;
     setIsDailyLevel(isDaily);
-
-    if (isDaily) {
-      // Update streak for daily level completion
-      const updatedStreak = updateStreakOnLevelCompletion();
-      setStreakData(updatedStreak);
-    }
   }, [level]);
 
   const handleNotificationToggle = (enabled: boolean) => {

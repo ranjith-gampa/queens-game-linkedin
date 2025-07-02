@@ -146,5 +146,13 @@
   "STREAK_BADGES": "Badges",
   "STREAK_NOTIFICATIONS": "Notifier pour le jeu de demain",
   "STREAK_REQUESTING_PERMISSION": "Demande d'autorisation de notification...",
-  "STREAK_NOTIFICATIONS_BLOCKED": "Les notifications sont bloquées. Veuillez les activer dans les paramètres de votre navigateur."
+  "STREAK_NOTIFICATIONS_BLOCKED": "Les notifications sont bloquées. Veuillez les activer dans les paramètres de votre navigateur.",
+  "STREAK_NOTIFICATIONS_TITLE": "Rappels de Série",
+  "STREAK_NOTIFICATIONS_DESCRIPTION": "Recevez des rappels quotidiens à 9h et 21h pour maintenir votre série",
+  "STREAK_DAILY_REMINDERS": "Rappels Quotidiens",
+  "STREAK_REMINDERS_ENABLED_DESC": "Recevez des notifications pour maintenir votre série active",
+  "STREAK_REMINDERS_DENIED_DESC": "Notifications bloquées. Activez-les dans les paramètres du navigateur pour recevoir des rappels.",
+  "STREAK_REMINDERS_PERMISSION_DESC": "Activez les notifications pour recevoir des rappels quotidiens de série",
+  "STREAK_PERMISSION_DENIED_HELP": "Pour activer les notifications, allez dans les paramètres de votre navigateur et autorisez les notifications pour ce site, puis actualisez la page.",
+  "TEST_NOTIFICATIONS": "Tester les Notifications"
 }

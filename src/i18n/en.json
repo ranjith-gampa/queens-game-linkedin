@@ -154,5 +154,12 @@
   "STREAK_NOTIFICATIONS": "Push notify for tomorrow's game",
   "STREAK_REQUESTING_PERMISSION": "Requesting notification permission...",
   "STREAK_NOTIFICATIONS_BLOCKED": "Notifications are blocked. Please enable them in your browser settings.",
+  "STREAK_NOTIFICATIONS_TITLE": "Streak Reminders",
+  "STREAK_NOTIFICATIONS_DESCRIPTION": "Get daily reminders at 9am and 9pm to maintain your streak",
+  "STREAK_DAILY_REMINDERS": "Daily Reminders",
+  "STREAK_REMINDERS_ENABLED_DESC": "Receive notifications to keep your streak alive",
+  "STREAK_REMINDERS_DENIED_DESC": "Notifications blocked. Enable in browser settings to receive reminders.",
+  "STREAK_REMINDERS_PERMISSION_DESC": "Enable notifications to receive daily streak reminders",
+  "STREAK_PERMISSION_DENIED_HELP": "To enable notifications, go to your browser settings and allow notifications for this site, then refresh the page.",
   "TEST_NOTIFICATIONS": "Test Notifications"
 }
