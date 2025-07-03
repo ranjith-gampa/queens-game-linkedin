@@ -161,7 +161,7 @@ async function captureScreenshot(
 
 async function navigateToLevelBuilder(page: Page): Promise<void> {
   console.log("Navigating to level builder...");
-  await page.goto("http://localhost:3000/level-builder", {
+  await page.goto("http://localhost:5173/level-builder?skipWelcome=true", {
     waitUntil: "networkidle",
   });
 }

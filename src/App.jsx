@@ -26,7 +26,11 @@ const App = () => {
 
   useEffect(() => {
     // Check if user profile exists, if not show the dialog
-    if (!hasUserProfile()) {
+    // Skip the dialog if automation script is running (skipWelcome parameter)
+    const urlParams = new URLSearchParams(window.location.search);
+    const skipWelcome = urlParams.get('skipWelcome') === 'true';
+    
+    if (!hasUserProfile() && !skipWelcome) {
       setShowUserIdentificationDialog(true);
     }
 
