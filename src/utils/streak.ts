@@ -213,18 +213,18 @@ export function updateStreakOnLevelCompletion(): StreakData {
   if (newStreak > 0) {
     console.log(`   Marking consecutive days for ${newStreak}-day streak in current week...`);
     
+    const endOfCurrentWeek = new Date(startOfCurrentWeek);
+    endOfCurrentWeek.setDate(startOfCurrentWeek.getDate() + 6); // End on Saturday
+    endOfCurrentWeek.setHours(23, 59, 59, 999); // End of day
+    
     // Build consecutive dates working backwards from today
     const currentDateObj = new Date(currentDate + 'T00:00:00-08:00');
     for (let i = 0; i < newStreak; i++) {
       const streakDateObj = new Date(currentDateObj);
       streakDateObj.setDate(currentDateObj.getDate() - i);
       
-      // Check if this streak date is in the current week
-      const startOfStreakDateWeek = new Date(streakDateObj);
-      startOfStreakDateWeek.setDate(streakDateObj.getDate() - streakDateObj.getDay());
-      startOfStreakDateWeek.setHours(0, 0, 0, 0);
-      
-      if (startOfCurrentWeek.getTime() === startOfStreakDateWeek.getTime()) {
+      // Check if this streak date is in the current week using simple date range comparison
+      if (streakDateObj >= startOfCurrentWeek && streakDateObj <= endOfCurrentWeek) {
         const streakDayOfWeek = streakDateObj.getDay();
         newWeeklyProgress[streakDayOfWeek] = true;
         const streakDateString = convertUTCToPacificDateString(streakDateObj);
@@ -374,8 +374,20 @@ export async function calculateHistoricalStreak(): Promise<StreakData | null> {
     userRecords.forEach(record => {
       const levelNumber = parseInt(record.levelId);
       
-      // Parse the database timestamp (assuming it's in UTC)
-      const completionDate = new Date(record.completedAt);
+      // Parse the database timestamp (assuming it's in UTC) with validation
+      let completionDate: Date;
+      try {
+        completionDate = new Date(record.completedAt);
+        
+        // Validate the parsed date
+        if (!isFinite(completionDate.getTime())) {
+          console.warn(`Invalid completion date for level ${levelNumber}:`, record.completedAt);
+          return; // Skip this record
+        }
+      } catch (error) {
+        console.error(`Error parsing completion date for level ${levelNumber}:`, record.completedAt, error);
+        return; // Skip this record
+      }
       
       // Convert UTC timestamp to Pacific Time date string
       const pacificDateString = convertUTCToPacificDateString(completionDate);
@@ -461,16 +473,20 @@ export async function calculateHistoricalStreak(): Promise<StreakData | null> {
       const pacificToday = new Date(today.toLocaleString("en-US", {timeZone: "America/Los_Angeles"}));
       const startOfCurrentWeek = new Date(pacificToday);
       startOfCurrentWeek.setDate(pacificToday.getDate() - pacificToday.getDay()); // Start from Sunday
+      startOfCurrentWeek.setHours(0, 0, 0, 0); // Normalize to start of day
+      
+      const endOfCurrentWeek = new Date(startOfCurrentWeek);
+      endOfCurrentWeek.setDate(startOfCurrentWeek.getDate() + 6); // End on Saturday
+      endOfCurrentWeek.setHours(23, 59, 59, 999); // End of day
+      
+      console.log(`   Current week: ${startOfCurrentWeek.toISOString().split('T')[0]} to ${endOfCurrentWeek.toISOString().split('T')[0]}`);
       
       // Check each streak date to see if it falls in the current week
       streakDates.forEach((dateString, index) => {
         const streakDateObj = new Date(dateString + 'T00:00:00-08:00');
         
-        // Check if this streak date is in the current week
-        const startOfStreakDateWeek = new Date(streakDateObj);
-        startOfStreakDateWeek.setDate(streakDateObj.getDate() - streakDateObj.getDay());
-        
-        if (startOfCurrentWeek.getTime() === startOfStreakDateWeek.getTime()) {
+        // Check if this streak date is in the current week using simple date range comparison
+        if (streakDateObj >= startOfCurrentWeek && streakDateObj <= endOfCurrentWeek) {
           const dayOfWeek = streakDateObj.getDay();
           weeklyProgress[dayOfWeek] = true;
           console.log(`   Marked ${dateString} (day ${dayOfWeek}) from streak date ${index + 1}`);
@@ -624,17 +640,17 @@ export function updateStreakWithDate(levelId: string, isDailyLevel: boolean, cus
   if (newStreak > 0) {
     console.log(`   Marking consecutive days for ${newStreak}-day streak in current week...`);
     
+    const endOfCurrentWeek = new Date(startOfCurrentWeek);
+    endOfCurrentWeek.setDate(startOfCurrentWeek.getDate() + 6); // End on Saturday
+    endOfCurrentWeek.setHours(23, 59, 59, 999); // End of day
+    
     // Build consecutive dates working backwards from the custom date
     for (let i = 0; i < newStreak; i++) {
       const streakDateObj = new Date(customDateObj);
       streakDateObj.setDate(customDateObj.getDate() - i);
       
-      // Check if this streak date is in the current week
-      const startOfStreakDateWeek = new Date(streakDateObj);
-      startOfStreakDateWeek.setDate(streakDateObj.getDate() - streakDateObj.getDay());
-      startOfStreakDateWeek.setHours(0, 0, 0, 0);
-      
-      if (startOfCurrentWeek.getTime() === startOfStreakDateWeek.getTime()) {
+      // Check if this streak date is in the current week using simple date range comparison
+      if (streakDateObj >= startOfCurrentWeek && streakDateObj <= endOfCurrentWeek) {
         const streakDayOfWeek = streakDateObj.getDay();
         newWeeklyProgress[streakDayOfWeek] = true;
         const streakDateString = convertUTCToPacificDateString(streakDateObj);
@@ -827,29 +843,52 @@ export async function forceHistoricalStreakCalculation(): Promise<StreakData | n
 
 // Merge database streak data with existing local data (for migration)
 function mergeStreakData(localData: StreakData, dbData: StreakData): StreakData {
+  console.log('🔄 Starting mergeStreakData with validation...');
+  
+  // Validate both sets of data before merging
+  const localValidation = validateStreakDataForMerge(localData);
+  const dbValidation = validateStreakDataForMerge(dbData);
+  
+  if (!localValidation.isValid) {
+    console.warn('Local streak data is invalid, using database data only');
+    return dbValidation.cleanedData || getStreakData();
+  }
+  
+  if (!dbValidation.isValid) {
+    console.warn('Database streak data is invalid, using local data only');
+    return localValidation.cleanedData || localData;
+  }
+  
+  const cleanLocalData = localValidation.cleanedData!;
+  const cleanDbData = dbValidation.cleanedData!;
+  
+  console.log('✅ Both data sets validated successfully');
+  console.log('   Local data:', cleanLocalData);
+  console.log('   DB data:', cleanDbData);
+  
   // Use the higher streak count
-  const currentStreak = Math.max(localData.currentStreak, dbData.currentStreak);
+  const currentStreak = Math.max(cleanLocalData.currentStreak, cleanDbData.currentStreak);
   
   // Use the more recent last played date
-  let lastPlayedLevel = localData.lastPlayedLevel;
-  let lastPlayedDate = localData.lastPlayedDate;
+  let lastPlayedLevel = cleanLocalData.lastPlayedLevel;
+  let lastPlayedDate = cleanLocalData.lastPlayedDate;
   
-  if (dbData.lastPlayedDate && (!localData.lastPlayedDate || dbData.lastPlayedDate > localData.lastPlayedDate)) {
-    lastPlayedLevel = dbData.lastPlayedLevel;
-    lastPlayedDate = dbData.lastPlayedDate;
+  if (cleanDbData.lastPlayedDate && (!cleanLocalData.lastPlayedDate || cleanDbData.lastPlayedDate > cleanLocalData.lastPlayedDate)) {
+    lastPlayedLevel = cleanDbData.lastPlayedLevel;
+    lastPlayedDate = cleanDbData.lastPlayedDate;
   }
   
   // Merge badges (keep any earned badges from either source)
   const badges = {
-    threeDays: localData.badges.threeDays || dbData.badges.threeDays,
-    fiveDays: localData.badges.fiveDays || dbData.badges.fiveDays,
-    sevenDays: localData.badges.sevenDays || dbData.badges.sevenDays,
-    thirtyOneDays: localData.badges.thirtyOneDays || dbData.badges.thirtyOneDays,
-    fiftyDays: localData.badges.fiftyDays || dbData.badges.fiftyDays,
-    oneHundredDays: localData.badges.oneHundredDays || dbData.badges.oneHundredDays,
-    oneHundredFiftyDays: localData.badges.oneHundredFiftyDays || dbData.badges.oneHundredFiftyDays,
-    twoHundredDays: localData.badges.twoHundredDays || dbData.badges.twoHundredDays,
-    threeSixtyFiveDays: localData.badges.threeSixtyFiveDays || dbData.badges.threeSixtyFiveDays,
+    threeDays: cleanLocalData.badges.threeDays || cleanDbData.badges.threeDays,
+    fiveDays: cleanLocalData.badges.fiveDays || cleanDbData.badges.fiveDays,
+    sevenDays: cleanLocalData.badges.sevenDays || cleanDbData.badges.sevenDays,
+    thirtyOneDays: cleanLocalData.badges.thirtyOneDays || cleanDbData.badges.thirtyOneDays,
+    fiftyDays: cleanLocalData.badges.fiftyDays || cleanDbData.badges.fiftyDays,
+    oneHundredDays: cleanLocalData.badges.oneHundredDays || cleanDbData.badges.oneHundredDays,
+    oneHundredFiftyDays: cleanLocalData.badges.oneHundredFiftyDays || cleanDbData.badges.oneHundredFiftyDays,
+    twoHundredDays: cleanLocalData.badges.twoHundredDays || cleanDbData.badges.twoHundredDays,
+    threeSixtyFiveDays: cleanLocalData.badges.threeSixtyFiveDays || cleanDbData.badges.threeSixtyFiveDays,
   };
   
   // Recalculate badges based on the final streak count
@@ -877,34 +916,86 @@ function mergeStreakData(localData: StreakData, dbData: StreakData): StreakData 
     const pacificToday = new Date(today.toLocaleString("en-US", {timeZone: "America/Los_Angeles"}));
     const startOfCurrentWeek = new Date(pacificToday);
     startOfCurrentWeek.setDate(pacificToday.getDate() - pacificToday.getDay()); // Start from Sunday
+    startOfCurrentWeek.setHours(0, 0, 0, 0); // Normalize to start of day
+    
+    const endOfCurrentWeek = new Date(startOfCurrentWeek);
+    endOfCurrentWeek.setDate(startOfCurrentWeek.getDate() + 6); // End on Saturday
+    endOfCurrentWeek.setHours(23, 59, 59, 999); // End of day
+    
+  // Validate lastPlayedDate before using it
+  if (!lastPlayedDate || typeof lastPlayedDate !== 'string' || lastPlayedDate.length < 10) {
+    console.warn('Invalid or missing lastPlayedDate in mergeStreakData:', lastPlayedDate);
+    return {
+      currentStreak,
+      lastPlayedLevel,
+      lastPlayedDate: '',
+      weeklyProgress: [false, false, false, false, false, false, false],
+      badges,
+      notificationsEnabled: cleanLocalData.notificationsEnabled,
+      dbSyncCompleted: true,
+    };
+  }
     
     const lastPlayedDateObj = new Date(lastPlayedDate + 'T00:00:00-08:00');
+    
+    // Validate the constructed date
+    if (!isFinite(lastPlayedDateObj.getTime())) {
+      console.warn('Invalid lastPlayedDateObj constructed from:', lastPlayedDate);
+      return {
+        currentStreak,
+        lastPlayedLevel,
+        lastPlayedDate: '',
+        weeklyProgress: [false, false, false, false, false, false, false],
+        badges,
+        notificationsEnabled: cleanLocalData.notificationsEnabled,
+        dbSyncCompleted: true,
+      };
+    }
     
     // Build actual consecutive streak dates working backwards from last played date
     const consecutiveDates: string[] = [];
     for (let i = 0; i < currentStreak; i++) {
-      const streakDate = new Date(lastPlayedDateObj);
-      streakDate.setDate(lastPlayedDateObj.getDate() - i);
-      const dateString = convertUTCToPacificDateString(streakDate);
-      consecutiveDates.push(dateString);
+      try {
+        const streakDate = new Date(lastPlayedDateObj);
+        streakDate.setDate(lastPlayedDateObj.getDate() - i);
+        
+        // Validate the constructed date
+        if (!isFinite(streakDate.getTime())) {
+          console.warn(`Invalid streak date constructed at index ${i}`);
+          break; // Stop building consecutive dates
+        }
+        
+        const dateString = convertUTCToPacificDateString(streakDate);
+        consecutiveDates.push(dateString);
+      } catch (error) {
+        console.error(`Error building consecutive date at index ${i}:`, error);
+        break; // Stop building consecutive dates
+      }
     }
     
     console.log(`   Consecutive streak dates: [${consecutiveDates.join(', ')}]`);
     
     // Mark each consecutive date that falls in the current week
     consecutiveDates.forEach((dateString, index) => {
-      const streakDateObj = new Date(dateString + 'T00:00:00-08:00');
-      
-      // Check if this streak date is in the current week
-      const startOfStreakDateWeek = new Date(streakDateObj);
-      startOfStreakDateWeek.setDate(streakDateObj.getDate() - streakDateObj.getDay());
-      
-      if (startOfCurrentWeek.getTime() === startOfStreakDateWeek.getTime()) {
-        const dayOfWeek = streakDateObj.getDay();
-        weeklyProgress[dayOfWeek] = true;
-        console.log(`   Marked ${dateString} (day ${dayOfWeek}) from consecutive streak day ${index + 1}`);
-      } else {
-        console.log(`   Skipped ${dateString} (not in current week)`);
+      try {
+        const streakDateObj = new Date(dateString + 'T00:00:00-08:00');
+        
+        // Validate the constructed date
+        if (!isFinite(streakDateObj.getTime())) {
+          console.warn(`Invalid streak date constructed from: ${dateString}`);
+          return; // Skip this date
+        }
+        
+        // Check if this streak date is in the current week using simple date range comparison
+        if (streakDateObj >= startOfCurrentWeek && streakDateObj <= endOfCurrentWeek) {
+          const dayOfWeek = streakDateObj.getDay();
+          weeklyProgress[dayOfWeek] = true;
+          console.log(`   Marked ${dateString} (day ${dayOfWeek}) from consecutive streak day ${index + 1}`);
+        } else {
+          console.log(`   Skipped ${dateString} (not in current week)`);
+        }
+      } catch (error) {
+        console.error(`Error processing consecutive date ${dateString}:`, error);
       }
     });
   }
@@ -936,23 +1027,155 @@ function mergeStreakData(localData: StreakData, dbData: StreakData): StreakData 
     lastPlayedDate,
     weeklyProgress,
     badges,
-    notificationsEnabled: localData.notificationsEnabled,
+    notificationsEnabled: cleanLocalData.notificationsEnabled,
     dbSyncCompleted: true,
   };
 }
 
+// Validate streak data dates and basic structure
+function validateStreakDataForMerge(data: StreakData): { isValid: boolean; cleanedData?: StreakData } {
+  try {
+    // Basic structure validation
+    if (!data || typeof data !== 'object') {
+      return { isValid: false };
+    }
+    
+    // Validate numeric fields
+    const currentStreak = typeof data.currentStreak === 'number' && isFinite(data.currentStreak) 
+      ? Math.max(0, data.currentStreak) 
+      : 0;
+      
+    const lastPlayedLevel = typeof data.lastPlayedLevel === 'number' && isFinite(data.lastPlayedLevel)
+      ? data.lastPlayedLevel
+      : -1;
+    
+    // Validate and clean date string
+    let lastPlayedDate = '';
+    if (data.lastPlayedDate && typeof data.lastPlayedDate === 'string') {
+      try {
+        let testDate: Date;
+        
+        // Check if it's already an ISO timestamp format
+        if (data.lastPlayedDate.includes('T')) {
+          // Parse as ISO timestamp and convert to Pacific date string
+          testDate = new Date(data.lastPlayedDate);
+          if (isFinite(testDate.getTime())) {
+            lastPlayedDate = convertUTCToPacificDateString(testDate);
+            console.log(`Converted ISO timestamp ${data.lastPlayedDate} to Pacific date: ${lastPlayedDate}`);
+          } else {
+            console.warn('Invalid ISO timestamp in lastPlayedDate:', data.lastPlayedDate);
+          }
+        } else {
+          // Assume it's already a YYYY-MM-DD format, validate it
+          testDate = new Date(data.lastPlayedDate + 'T00:00:00-08:00');
+          if (isFinite(testDate.getTime())) {
+            lastPlayedDate = data.lastPlayedDate;
+          } else {
+            console.warn('Invalid date string in lastPlayedDate:', data.lastPlayedDate);
+          }
+        }
+      } catch (error) {
+        console.error('Error parsing lastPlayedDate:', data.lastPlayedDate, error);
+      }
+    }
+    
+    // If we have an invalid date but a positive streak, clear the streak
+    if (currentStreak > 0 && !lastPlayedDate) {
+      console.warn('Clearing streak due to invalid lastPlayedDate');
+      return {
+        isValid: true,
+        cleanedData: {
+          currentStreak: 0,
+          lastPlayedLevel: -1,
+          lastPlayedDate: '',
+          weeklyProgress: [false, false, false, false, false, false, false],
+          badges: data.badges || {
+            threeDays: false,
+            fiveDays: false,
+            sevenDays: false,
+            thirtyOneDays: false,
+            fiftyDays: false,
+            oneHundredDays: false,
+            oneHundredFiftyDays: false,
+            twoHundredDays: false,
+            threeSixtyFiveDays: false,
+          },
+          notificationsEnabled: !!data.notificationsEnabled,
+          dbSyncCompleted: !!data.dbSyncCompleted,
+        }
+      };
+    }
+    
+    // Validate weekly progress array
+    const weeklyProgress = Array.isArray(data.weeklyProgress) && data.weeklyProgress.length === 7
+      ? data.weeklyProgress.map(val => !!val)
+      : [false, false, false, false, false, false, false];
+    
+    // Validate badges object
+    const badges = data.badges && typeof data.badges === 'object' ? {
+      threeDays: !!data.badges.threeDays,
+      fiveDays: !!data.badges.fiveDays,
+      sevenDays: !!data.badges.sevenDays,
+      thirtyOneDays: !!data.badges.thirtyOneDays,
+      fiftyDays: !!data.badges.fiftyDays,
+      oneHundredDays: !!data.badges.oneHundredDays,
+      oneHundredFiftyDays: !!data.badges.oneHundredFiftyDays,
+      twoHundredDays: !!data.badges.twoHundredDays,
+      threeSixtyFiveDays: !!data.badges.threeSixtyFiveDays,
+    } : {
+      threeDays: false,
+      fiveDays: false,
+      sevenDays: false,
+      thirtyOneDays: false,
+      fiftyDays: false,
+      oneHundredDays: false,
+      oneHundredFiftyDays: false,
+      twoHundredDays: false,
+      threeSixtyFiveDays: false,
+    };
+    
+    return {
+      isValid: true,
+      cleanedData: {
+        currentStreak,
+        lastPlayedLevel,
+        lastPlayedDate,
+        weeklyProgress,
+        badges,
+        notificationsEnabled: !!data.notificationsEnabled,
+        dbSyncCompleted: !!data.dbSyncCompleted,
+      }
+    };
+  } catch (error) {
+    console.error('Error validating streak data:', error);
+    return { isValid: false };
+  }
+}
+
 // Helper function to convert UTC timestamp to Pacific Time date string
 function convertUTCToPacificDateString(utcDate: Date): string {
-  // Use Intl.DateTimeFormat for reliable timezone conversion
-  const formatter = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'America/Los_Angeles',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
-  });
+  // Validate that the date is finite and valid
+  if (!utcDate || !(utcDate instanceof Date) || !isFinite(utcDate.getTime())) {
+    console.error('Invalid date passed to convertUTCToPacificDateString:', utcDate);
+    return new Date().toISOString().split('T')[0]; // Return today as fallback
+  }
   
-  // This returns YYYY-MM-DD format
-  return formatter.format(utcDate);
+  try {
+    // Use Intl.DateTimeFormat for reliable timezone conversion
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Los_Angeles',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+    
+    // This returns YYYY-MM-DD format
+    return formatter.format(utcDate);
+  } catch (error) {
+    console.error('Error formatting date to Pacific time:', error, 'Date:', utcDate);
+    // Fallback to basic ISO date string
+    return utcDate.toISOString().split('T')[0];
+  }
 }
 
 // Retroactively fix weekly progress for existing streaks (for migration/repair)
