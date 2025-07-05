@@ -1,7 +1,41 @@
+// Helper function to safely parse localStorage values
+export const safeParseLocalStorage = (key: string, defaultValue: any = null) => {
+  if (typeof window === 'undefined') return defaultValue;
+  const value = localStorage.getItem(key);
+  if (!value || value === 'undefined' || value === 'null') return defaultValue;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return defaultValue;
+  }
+};
+
+// Function to clean up corrupted localStorage entries
+export const cleanupCorruptedLocalStorage = () => {
+  if (typeof window === 'undefined') return;
+  
+  const keysToCheck = [
+    'bonusLevelsClicked',
+    'communityLevelsClicked', 
+    'clashingQueensEnabled',
+    'showInstructions',
+    'showClock',
+    'autoPlaceXs',
+    'groupBySize',
+    'hideCompletedLevels'
+  ];
+  
+  keysToCheck.forEach(key => {
+    const value = localStorage.getItem(key);
+    if (value === 'undefined' || value === 'null') {
+      localStorage.removeItem(key);
+    }
+  });
+};
+
 export const markLevelAsCompleted = (levelNumber: number) => {
   if (typeof window === 'undefined') return;
-  const completedLevels =
-    JSON.parse(localStorage.getItem("completedLevels") as string) || [];
+  const completedLevels = safeParseLocalStorage("completedLevels", []);
 
   if (!completedLevels.includes(levelNumber)) {
     completedLevels.push(levelNumber);
@@ -11,8 +45,7 @@ export const markLevelAsCompleted = (levelNumber: number) => {
 
 export const markBonusLevelAsCompleted = (levelId: string) => {
   if (typeof window === 'undefined') return;
-  const completedLevels =
-    JSON.parse(localStorage.getItem("completedBonusLevels") as string) || [];
+  const completedLevels = safeParseLocalStorage("completedBonusLevels", []);
 
   if (!completedLevels.includes(levelId)) {
     completedLevels.push(levelId);
@@ -25,9 +58,7 @@ export const markBonusLevelAsCompleted = (levelId: string) => {
 
 export const markCommunityLevelAsCompleted = (levelId: string) => {
   if (typeof window === 'undefined') return;
-  const completedLevels =
-    JSON.parse(localStorage.getItem("completedCommunityLevels") as string) ||
-    [];
+  const completedLevels = safeParseLocalStorage("completedCommunityLevels", []);
 
   if (!completedLevels.includes(levelId)) {
     completedLevels.push(levelId);
@@ -40,23 +71,19 @@ export const markCommunityLevelAsCompleted = (levelId: string) => {
 
 export const isLevelCompleted = (levelNumber: number) => {
   if (typeof window === 'undefined') return false;
-  const completedLevels =
-    JSON.parse(localStorage.getItem("completedLevels") as string) || [];
+  const completedLevels = safeParseLocalStorage("completedLevels", []);
   return completedLevels.includes(levelNumber);
 };
 
 export const isBonusLevelCompleted = (levelId: string) => {
   if (typeof window === 'undefined') return false;
-  const completedLevels =
-    JSON.parse(localStorage.getItem("completedBonusLevels") as string) || [];
+  const completedLevels = safeParseLocalStorage("completedBonusLevels", []);
   return completedLevels.includes(levelId);
 };
 
 export const isCommunityLevelCompleted = (levelId: string) => {
   if (typeof window === 'undefined') return false;
-  const completedLevels =
-    JSON.parse(localStorage.getItem("completedCommunityLevels") as string) ||
-    [];
+  const completedLevels = safeParseLocalStorage("completedCommunityLevels", []);
   return completedLevels.includes(levelId);
 };
 
@@ -74,9 +101,7 @@ export const setClashingQueensPreference = (enabled: boolean) => {
 
 export const getClashingQueensPreference = () => {
   if (typeof window === 'undefined') return true;
-  return (
-    JSON.parse(localStorage.getItem("clashingQueensEnabled") as string) ?? true
-  ); // Default to true
+  return safeParseLocalStorage("clashingQueensEnabled", true);
 };
 
 export const setShowInstructionsPreference = (enabled: boolean) => {
@@ -87,7 +112,7 @@ export const setShowInstructionsPreference = (enabled: boolean) => {
 
 export const getShowInstructionsPreference = () => {
   if (typeof window === 'undefined') return true;
-  return JSON.parse(localStorage.getItem("showInstructions") as string) ?? true; // Default to true
+  return safeParseLocalStorage("showInstructions", true);
 };
 
 export const setShowClockPreference = (enabled: boolean) => {
@@ -98,7 +123,7 @@ export const setShowClockPreference = (enabled: boolean) => {
 
 export const getShowClockPreference = () => {
   if (typeof window === 'undefined') return true;
-  return JSON.parse(localStorage.getItem("showClock") as string) ?? true; // Default to true
+  return safeParseLocalStorage("showClock", true); // Default to true
 };
 
 export const setAutoPlaceXsPreference = (enabled: boolean) => {
@@ -109,7 +134,7 @@ export const setAutoPlaceXsPreference = (enabled: boolean) => {
 
 export const getAutoPlaceXsPreference = () => {
   if (typeof window === 'undefined') return false;
-  return JSON.parse(localStorage.getItem("autoPlaceXs") as string) ?? false; // Default to false
+  return safeParseLocalStorage("autoPlaceXs", false); // Default to false
 };
 
 export const setGroupingPreference = (enabled: boolean) => {
@@ -120,7 +145,7 @@ export const setGroupingPreference = (enabled: boolean) => {
 
 export const getGroupingPreference = () => {
   if (typeof window === 'undefined') return false;
-  return JSON.parse(localStorage.getItem("groupBySize") as string) ?? false; // Default to false
+  return safeParseLocalStorage("groupBySize", false); // Default to false
 };
 
 export const setBonusLevelsClicked = (clicked: boolean) => {
@@ -131,9 +156,7 @@ export const setBonusLevelsClicked = (clicked: boolean) => {
 
 export const getBonusLevelsClicked = () => {
   if (typeof window === 'undefined') return false;
-  return (
-    JSON.parse(localStorage.getItem("bonusLevelsClicked") as string) ?? false
-  ); // Default to false
+  return safeParseLocalStorage("bonusLevelsClicked", false); // Default to false
 };
 
 export const setCommunityLevelsClicked = (clicked: boolean) => {
@@ -144,10 +167,7 @@ export const setCommunityLevelsClicked = (clicked: boolean) => {
 
 export const getCommunityLevelsClicked = () => {
   if (typeof window === 'undefined') return false;
-  return (
-    JSON.parse(localStorage.getItem("communityLevelsClicked") as string) ??
-    false
-  ); // Default to false
+  return safeParseLocalStorage("communityLevelsClicked", false); // Default to false
 };
 
 export const setHideCompletedLevelsPreference = (enabled: boolean) => {
@@ -158,9 +178,7 @@ export const setHideCompletedLevelsPreference = (enabled: boolean) => {
 
 export const getHideCompletedLevelsPreference = () => {
   if (typeof window === 'undefined') return false;
-  return (
-    JSON.parse(localStorage.getItem("hideCompletedLevels") as string) ?? false
-  ); // Default to false
+  return safeParseLocalStorage("hideCompletedLevels", false); // Default to false
 };
 
 export const setShowUniqueCommunityLevelsPreference = (enabled: boolean) => {
@@ -171,10 +189,7 @@ export const setShowUniqueCommunityLevelsPreference = (enabled: boolean) => {
 
 export const getShowUniqueCommunityLevelsPreference = () => {
   if (typeof window === 'undefined') return false;
-  return (
-    JSON.parse(localStorage.getItem("showUniqueCommunityLevels") as string) ??
-    false
-  ); // Default to false
+  return safeParseLocalStorage("showUniqueCommunityLevels", false); // Default to false
 };
 
 export const setShowMultipleCommunityLevelsPreference = (enabled: boolean) => {
@@ -185,10 +200,7 @@ export const setShowMultipleCommunityLevelsPreference = (enabled: boolean) => {
 
 export const getShowMultipleCommunityLevelsPreference = () => {
   if (typeof window === 'undefined') return false;
-  return (
-    JSON.parse(localStorage.getItem("showMultipleCommunityLevels") as string) ??
-    false
-  ); // Default to false
+  return safeParseLocalStorage("showMultipleCommunityLevels", false); // Default to false
 };
 
 export const setShowCompletedCommunityLevelsPreference = (enabled: boolean) => {
@@ -199,11 +211,7 @@ export const setShowCompletedCommunityLevelsPreference = (enabled: boolean) => {
 
 export const getShowCompletedCommunityLevelsPreference = () => {
   if (typeof window === 'undefined') return false;
-  return (
-    JSON.parse(
-      localStorage.getItem("showCompletedCommunityLevels") as string
-    ) ?? false
-  ); // Default to false
+  return safeParseLocalStorage("showCompletedCommunityLevels", false); // Default to false
 };
 
 export const setShowNotCompletedCommunityLevelsPreference = (
@@ -219,11 +227,7 @@ export const setShowNotCompletedCommunityLevelsPreference = (
 
 export const getShowNotCompletedCommunityLevelsPreference = () => {
   if (typeof window === 'undefined') return false;
-  return (
-    JSON.parse(
-      localStorage.getItem("showNotCompletedCommunityLevels") as string
-    ) ?? false
-  ); // Default to false
+  return safeParseLocalStorage("showNotCompletedCommunityLevels", false); // Default to false
 };
 
 import { LevelCompletionTime, UserProfile } from "./types";
@@ -251,8 +255,7 @@ export const saveLevelCompletionTime = async (
   
   const stringId = id.toString();
   const timeSeconds = Math.floor(time);
-  const completionTimes: LevelCompletionTime[] =
-    JSON.parse(localStorage.getItem(LEVEL_COMPLETION_TIMES_KEY) as string) || [];
+  const completionTimes: LevelCompletionTime[] = safeParseLocalStorage(LEVEL_COMPLETION_TIMES_KEY, []);
 
   const userProfile = getUserProfile();
 
@@ -335,8 +338,7 @@ export const getLevelCompletionTimes = (
 ): LevelCompletionTime[] => {
   if (typeof window === 'undefined') return [];
   const stringId = id.toString();
-  const completionTimes: LevelCompletionTime[] =
-    JSON.parse(localStorage.getItem(LEVEL_COMPLETION_TIMES_KEY) as string) || [];
+  const completionTimes: LevelCompletionTime[] = safeParseLocalStorage(LEVEL_COMPLETION_TIMES_KEY, []);
 
   return completionTimes
     .filter(
@@ -347,15 +349,12 @@ export const getLevelCompletionTimes = (
 
 export const getAllLevelCompletionTimes = (): LevelCompletionTime[] => {
   if (typeof window === 'undefined') return [];
-  return (
-    JSON.parse(localStorage.getItem(LEVEL_COMPLETION_TIMES_KEY) as string) || []
-  );
+  return safeParseLocalStorage(LEVEL_COMPLETION_TIMES_KEY, []);
 };
 
 export const getUserProfile = (): UserProfile | null => {
   if (typeof window === 'undefined') return null;
-  const profileData = localStorage.getItem(USER_PROFILE_KEY);
-  return profileData ? JSON.parse(profileData) as UserProfile : null;
+  return safeParseLocalStorage(USER_PROFILE_KEY, null);
 };
 
 export const setUserProfile = (profile: UserProfile): void => {

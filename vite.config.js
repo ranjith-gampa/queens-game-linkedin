@@ -15,6 +15,10 @@ export default defineConfig(({ command, mode }) => {
         "@": path.resolve(__dirname, "./src"),
       },
     },
+    test: {
+      environment: 'jsdom',
+      setupFiles: ['./tests/setupTests.js'],
+    },
     // Define environment variables that should be available at build time
     define: {
       // For development, use loaded env variables

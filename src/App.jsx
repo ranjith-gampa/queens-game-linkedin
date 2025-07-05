@@ -18,6 +18,7 @@ import UserIdentificationDialog from "./components/UserIdentificationDialog";
 import { hasUserProfile } from "./utils/localStorage";
 import { initializeStreakData } from "./utils/streak";
 import { initializeNotifications } from "./utils/notifications";
+import { multiDeviceSync } from "./utils/multiDeviceSync";
 import "./App.css";
 import "./i18n";
 
@@ -40,6 +41,18 @@ const App = () => {
         const streakData = await initializeStreakData();
         if (streakData.notificationsEnabled) {
           initializeNotifications(true);
+        }
+        
+        // Auto-sync user data if profile exists
+        if (hasUserProfile()) {
+          try {
+            await multiDeviceSync.syncUserData();
+            sessionStorage.setItem('autoSyncCompleted', 'true');
+            console.log('Auto-sync completed successfully');
+          } catch (syncError) {
+            console.warn('Auto-sync failed:', syncError);
+            // Sync failure shouldn't block app initialization
+          }
         }
       } catch (error) {
         console.error('Error initializing app:', error);
