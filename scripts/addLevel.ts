@@ -394,19 +394,44 @@ async function createBonusLevelFile(
   
   // Insert the path field after the opening brace of the level object
   let modifiedCode = generatedCode;
-  const levelMatch = modifiedCode.match(/const level(\d+)? = {/);
+  const levelMatch = modifiedCode.match(/const level[^\s]* = {/);
   if (levelMatch) {
     const insertIndex = modifiedCode.indexOf('{', levelMatch.index!) + 1;
     modifiedCode = modifiedCode.slice(0, insertIndex) + '\n' + pathField + modifiedCode.slice(insertIndex);
   }
   
-  // Also replace any levelXXXX variable name with just "level"
-  modifiedCode = modifiedCode.replace(/const level\d+ = {/, 'const level = {');
-  modifiedCode = modifiedCode.replace(/export default level\d+;/, 'export default level;');
+  // Replace any level variable name (including ones with invalid characters) with just "level"
+  modifiedCode = modifiedCode.replace(/const level[^\s]* = {/, 'const level = {');
+  modifiedCode = modifiedCode.replace(/export default level[^\s]*;/, 'export default level;');
   
   const levelFile = `${dateString}.ts`;
   await fs.writeFile(path.join(bonusLevelsDir, levelFile), modifiedCode);
   console.log(`Bonus level file created with path field: ${levelFile}`);
+}
+
+async function updatePreviousBonusLevelFile(bonusLevelsDir: string, dateString: string): Promise<void> {
+  try {
+    const lastBonusDate = await getLastBonusLevelDate();
+    if (!lastBonusDate || lastBonusDate === dateString) {
+      console.log("No previous bonus level to update or this is the first bonus level");
+      return;
+    }
+
+    console.log(`Updating previous bonus level file: ${lastBonusDate}`);
+    const previousBonusFile = `${lastBonusDate}.ts`;
+    const previousFileDir = path.join(bonusLevelsDir, previousBonusFile);
+    
+    let bonusContent = await fs.readFile(previousFileDir, "utf8");
+    
+    // Remove the isNew: true field from the previous bonus level
+    bonusContent = bonusContent.replace(/\n  isNew: true,/, "");
+    
+    await fs.writeFile(previousFileDir, bonusContent);
+    console.log(`Updated ${previousBonusFile} - removed isNew flag`);
+  } catch (error) {
+    console.log("Error updating previous bonus level file:", error);
+    // Don't throw error as this is not critical for the main functionality
+  }
 }
 
 async function updateBonusLevelsFile(
@@ -604,11 +629,14 @@ async function addBonusLevel(
     await createBonusLevelFile(bonusLevelsDir, dateString, generatedCode);
     if (stopStep === AutomationSteps.FILE) return;
 
-    // Step 10: Update bonus levels file
+    // Step 10: Update previous bonus level file
+    await updatePreviousBonusLevelFile(bonusLevelsDir, dateString);
+
+    // Step 11: Update bonus levels file
     await updateBonusLevelsFile(bonusLevelsFile, dateString);
     if (stopStep === AutomationSteps.LEVELS) return;
 
-    // Step 11: Complete (no README update for bonus levels)
+    // Step 12: Complete (no README update for bonus levels)
     console.log(`Bonus level ${dateString} added successfully!`);
   } catch (error) {
     console.error(
@@ -630,7 +658,7 @@ function getNextSundayDate(): string {
   return nextSunday.toISOString().split('T')[0]; // YYYY-MM-DD format
 }
 
-async function getLastBonusLevelDate(): Promise<string | null> {
+async function getLastBonusLevelDate(excludeDate?: string): Promise<string | null> {
   try {
     const projectRoot = path.resolve(__dirname, "..");
     const bonusLevelsFile = path.join(projectRoot, "src", "utils", "bonusLevels.ts");
@@ -643,7 +671,7 @@ async function getLastBonusLevelDate(): Promise<string | null> {
     const dates = importMatches.map(match => {
       const dateMatch = match.match(/(\d{4}-\d{2}-\d{2})/);
       return dateMatch ? dateMatch[1] : null;
-    }).filter(Boolean).sort();
+    }).filter(Boolean).filter(date => date !== excludeDate).sort();
     
     return dates.length > 0 ? dates[dates.length - 1] : null;
   } catch (error) {

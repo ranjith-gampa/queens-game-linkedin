@@ -47,17 +47,30 @@ Added convenient npm scripts:
 
 ### File Management Functions
 - `createBonusLevelFile()`: Creates individual bonus level files with proper `path` field injection
+- `updatePreviousBonusLevelFile()`: Removes `isNew: true` flag from the previous bonus level file
 - `updateBonusLevelsFile()`: Updates the main bonusLevels.ts registry file
 
 ### Code Generation Fixes
 - **Path Field Injection**: Automatically adds `path: "/bonus-level/YYYY-MM-DD"` field to generated bonus levels
-- **Variable Name Normalization**: Converts `const levelYYYYMMDD` to `const level` for consistency
-- **Export Statement Fix**: Ensures `export default level` instead of `export default levelYYYYMMDD`
+- **Variable Name Normalization**: Converts any `const levelXXXX` (including special characters) to `const level` for consistency
+- **Export Statement Fix**: Ensures `export default level` instead of `export default levelXXXX`
+- **Previous Level Update**: Automatically removes `isNew: true` from the previous bonus level when adding a new one
 
-### Enhanced Navigation
-- `navigateToGame()`: Now supports both regular and bonus modes
-- `captureScreenshot()`: Updated to handle both level numbers and date strings
-- `setLevelName()`: Now accepts string identifiers for both types
+## Enhanced Automation Steps
+
+### Bonus Level Process:
+1. **Navigate** to bonus game URL (`https://www.linkedin.com/games/queens?bonus=true`)
+2. **Start** the game if needed
+3. **Capture** screenshot of the game board
+4. **Navigate** to level builder
+5. **Upload** screenshot to level builder
+6. **Select** LinkedIn level type
+7. **Set** level name (YYYY-MM-DD format)
+8. **Generate** and copy the level code
+9. **Create** bonus level file with path field and proper formatting
+10. **Update** previous bonus level file (remove `isNew` flag)
+11. **Update** bonus levels registry file (add import and export)
+12. **Complete** - bonus level ready for play
 
 ## File Structure Impact
 
@@ -106,11 +119,14 @@ npm run add:bonus -- --headless=false
 ✅ npm script integration complete
 ✅ Code transformation logic tested
 ✅ Path field injection working
-✅ Variable name normalization working
+✅ Variable name normalization working (including special characters)
+✅ Previous bonus level update working
+✅ `isNew` flag management working
 
 ## Fixed Issues
 - **Path Field Missing**: Level builder template doesn't include required `path` field for bonus levels
-- **Variable Naming**: Generated code uses `const levelYYYYMMDD` instead of `const level`
-- **Export Statements**: Export uses numbered variable instead of generic `level`
+- **Variable Naming**: Generated code uses invalid variable names with special characters
+- **Export Statements**: Export uses invalid variable names instead of generic `level`
+- **Previous Level Flag**: Previous bonus level's `isNew` flag wasn't being updated to false
 
-These issues are now automatically resolved by the script's code transformation logic.
+These issues are now automatically resolved by the script's code transformation and file management logic.
