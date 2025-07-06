@@ -4,6 +4,19 @@ import * as path from "path";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
+/**
+ * Script to automatically add new levels to the Queens Game
+ * 
+ * Regular levels:
+ *   npx tsx ./scripts/addLevel.ts --level 432 --headless=false
+ * 
+ * Bonus levels (automatically calculates next Sunday date):
+ *   npx tsx ./scripts/addLevel.ts --bonus --headless=false
+ * 
+ * Show available automation steps:
+ *   npx tsx ./scripts/addLevel.ts --show-steps
+ */
+
 // Define automation steps
 enum AutomationSteps {
   NAVIGATE = "navigate",
@@ -20,9 +33,16 @@ enum AutomationSteps {
   COMPLETE = "complete",
 }
 
-async function navigateToGame(page: Page): Promise<void> {
-  console.log("Navigating to Queens game...");
-  await page.goto("https://www.linkedin.com/games/queens/");
+// Type for level mode
+type LevelMode = "regular" | "bonus";
+
+async function navigateToGame(page: Page, mode: LevelMode = "regular"): Promise<void> {
+  console.log(`Navigating to Queens game (${mode} mode)...`);
+  if (mode === "bonus") {
+    await page.goto("https://www.linkedin.com/games/queens?bonus=true");
+  } else {
+    await page.goto("https://www.linkedin.com/games/queens/");
+  }
 }
 
 async function startGameIfNeeded(page: Page): Promise<void> {
@@ -94,9 +114,10 @@ async function startGameIfNeeded(page: Page): Promise<void> {
 
 async function captureScreenshot(
   page: Page,
-  levelNumber: number
+  identifier: string,
+  mode: LevelMode = "regular"
 ): Promise<string> {
-  console.log("Capturing screenshot of queens-board...");
+  console.log(`Capturing screenshot of queens-board (${mode})...`);
   try {
     // Wait for the iframe to be available
     const iframeHandle = await page.waitForSelector(
@@ -140,9 +161,10 @@ async function captureScreenshot(
     });
 
     // Save the screenshot
+    const prefix = mode === "bonus" ? "bonus" : "level";
     const screenshotPath = path.join(
       __dirname,
-      `level-${levelNumber}-screenshot.png`
+      `${prefix}-${identifier}-screenshot.png`
     );
     await fs.writeFile(screenshotPath, screenshotBuffer);
     console.log(`Screenshot saved to ${screenshotPath}`);
@@ -212,14 +234,14 @@ async function selectLinkedInButton(page: Page): Promise<void> {
   }
 }
 
-async function setLevelName(page: Page, levelNumber: number): Promise<void> {
+async function setLevelName(page: Page, identifier: string): Promise<void> {
   console.log("Setting level name...");
   try {
     const input = await page.waitForSelector('input[name="levelName"]', {
       timeout: 15000,
     });
-    await input.fill(levelNumber.toString());
-    console.log(`Level name set to "${levelNumber}"`);
+    await input.fill(identifier);
+    console.log(`Level name set to "${identifier}"`);
   } catch (error) {
     console.log(
       "Error setting level name:",
@@ -360,6 +382,88 @@ async function updateReadme(
   }
 }
 
+async function createBonusLevelFile(
+  bonusLevelsDir: string,
+  dateString: string,
+  generatedCode: string
+): Promise<void> {
+  console.log("Creating bonus level file...");
+  
+  // Add the path field for bonus levels
+  const pathField = `  path: "/bonus-level/${dateString}",`;
+  
+  // Insert the path field after the opening brace of the level object
+  let modifiedCode = generatedCode;
+  const levelMatch = modifiedCode.match(/const level(\d+)? = {/);
+  if (levelMatch) {
+    const insertIndex = modifiedCode.indexOf('{', levelMatch.index!) + 1;
+    modifiedCode = modifiedCode.slice(0, insertIndex) + '\n' + pathField + modifiedCode.slice(insertIndex);
+  }
+  
+  // Also replace any levelXXXX variable name with just "level"
+  modifiedCode = modifiedCode.replace(/const level\d+ = {/, 'const level = {');
+  modifiedCode = modifiedCode.replace(/export default level\d+;/, 'export default level;');
+  
+  const levelFile = `${dateString}.ts`;
+  await fs.writeFile(path.join(bonusLevelsDir, levelFile), modifiedCode);
+  console.log(`Bonus level file created with path field: ${levelFile}`);
+}
+
+async function updateBonusLevelsFile(
+  bonusLevelsFile: string,
+  dateString: string
+): Promise<void> {
+  console.log("Updating bonus levels file...");
+  let bonusLevelsContent = await fs.readFile(bonusLevelsFile, "utf8");
+  
+  const variableName = `level${formatDateForVariableName(dateString)}`;
+  
+  // Add the new import statement at the end of the imports block
+  const importStatement = `\nimport ${variableName} from "./bonus-levels/${dateString}";`;
+  const importRegex = /import\s+level\d+\s+from\s+"\.\/bonus-levels\/[\d-]+";/g;
+  const importMatches = bonusLevelsContent.match(importRegex);
+
+  if (importMatches) {
+    const lastImport = importMatches[importMatches.length - 1];
+    const lastImportIndex =
+      bonusLevelsContent.lastIndexOf(lastImport) + lastImport.length;
+    bonusLevelsContent =
+      bonusLevelsContent.slice(0, lastImportIndex) +
+      importStatement +
+      bonusLevelsContent.slice(lastImportIndex);
+  } else {
+    bonusLevelsContent = importStatement + bonusLevelsContent;
+  }
+
+  // Update the export statement
+  const exportMatch = bonusLevelsContent.match(
+    /export\s+const\s+bonusLevels\s*:\s*{[^}]*}\s*=\s*{([\s\S]*?)}\s*;/
+  );
+  if (exportMatch && exportMatch[1] !== undefined) {
+    const existingLevels = exportMatch[1].trim();
+    let newLevels: string;
+
+    if (existingLevels) {
+      const levelsArray = existingLevels
+        .split(",")
+        .map((level) => level.trim())
+        .filter((level) => level);
+      levelsArray.push(variableName);
+      newLevels = levelsArray.map((level) => `  ${level},`).join("\n");
+    } else {
+      newLevels = `  ${variableName},`;
+    }
+
+    bonusLevelsContent = bonusLevelsContent.replace(
+      /export\s+const\s+bonusLevels\s*:\s*{[^}]*}\s*=\s*{([\s\S]*?)}\s*;/,
+      `export const bonusLevels: { [key: string]: BonusLevel } = {\n${newLevels}\n};`
+    );
+    await fs.writeFile(bonusLevelsFile, bonusLevelsContent);
+  } else {
+    throw new Error("Could not find export statement in bonusLevels.ts");
+  }
+}
+
 async function addNewLevel(
   levelNumber: number,
   headless: boolean = true,
@@ -382,7 +486,7 @@ async function addNewLevel(
     if (stopStep === AutomationSteps.START) return;
 
     // Step 3: Capture screenshot
-    const screenshotPath = await captureScreenshot(page, levelNumber);
+    const screenshotPath = await captureScreenshot(page, levelNumber.toString());
     if (stopStep === AutomationSteps.CAPTURE) return;
 
     // Step 4: Navigate to level builder
@@ -398,7 +502,7 @@ async function addNewLevel(
     if (stopStep === AutomationSteps.LINKEDIN) return;
 
     // Step 7: Set level name
-    await setLevelName(page, levelNumber);
+    await setLevelName(page, levelNumber.toString());
     if (stopStep === AutomationSteps.NAME) return;
 
     // Step 8: Generate and copy code
@@ -441,6 +545,130 @@ async function addNewLevel(
   }
 }
 
+// New function to add bonus levels
+async function addBonusLevel(
+  headless: boolean = true,
+  stopAt?: string
+): Promise<void> {
+  const browser: Browser = await chromium.launch({ headless });
+  const context = await browser.newContext({
+    permissions: ["clipboard-read", "clipboard-write"],
+  });
+  const page: Page = await context.newPage();
+  const stopStep = stopAt?.toLowerCase() as AutomationSteps;
+
+  const dateString = await getNextBonusLevelDate();
+  console.log(`Adding bonus level for date: ${dateString}`);
+
+  try {
+    // Step 1: Navigate to game (bonus mode)
+    await navigateToGame(page, "bonus");
+    if (stopStep === AutomationSteps.NAVIGATE) return;
+
+    // Step 2: Start game
+    await startGameIfNeeded(page);
+    if (stopStep === AutomationSteps.START) return;
+
+    // Step 3: Capture screenshot
+    const screenshotPath = await captureScreenshot(page, dateString, "bonus");
+    if (stopStep === AutomationSteps.CAPTURE) return;
+
+    // Step 4: Navigate to level builder
+    await navigateToLevelBuilder(page);
+    if (stopStep === AutomationSteps.BUILDER) return;
+
+    // Step 5: Upload screenshot
+    await uploadScreenshot(page, screenshotPath);
+    if (stopStep === AutomationSteps.UPLOAD) return;
+
+    // Step 6: Select LinkedIn level type
+    await selectLinkedInButton(page);
+    if (stopStep === AutomationSteps.LINKEDIN) return;
+
+    // Step 7: Set level name
+    await setLevelName(page, dateString);
+    if (stopStep === AutomationSteps.NAME) return;
+
+    // Step 8: Generate and copy code
+    const generatedCode = await generateAndCopyCode(page);
+    if (stopStep === AutomationSteps.GENERATE) return;
+
+    const projectRoot = path.resolve(__dirname, "..");
+    const utilsDir = path.join(projectRoot, "src", "utils");
+    const bonusLevelsDir = path.join(utilsDir, "bonus-levels");
+    const bonusLevelsFile = path.join(utilsDir, "bonusLevels.ts");
+
+    await fs.mkdir(bonusLevelsDir, { recursive: true });
+
+    // Step 9: Create bonus level file
+    await createBonusLevelFile(bonusLevelsDir, dateString, generatedCode);
+    if (stopStep === AutomationSteps.FILE) return;
+
+    // Step 10: Update bonus levels file
+    await updateBonusLevelsFile(bonusLevelsFile, dateString);
+    if (stopStep === AutomationSteps.LEVELS) return;
+
+    // Step 11: Complete (no README update for bonus levels)
+    console.log(`Bonus level ${dateString} added successfully!`);
+  } catch (error) {
+    console.error(
+      "Error:",
+      error instanceof Error ? error.message : String(error)
+    );
+    throw error;
+  } finally {
+    await browser.close();
+  }
+}
+
+// Utility functions for bonus levels
+function getNextSundayDate(): string {
+  const today = new Date();
+  const daysUntilSunday = (7 - today.getDay()) % 7;
+  const nextSunday = new Date(today);
+  nextSunday.setDate(today.getDate() + (daysUntilSunday === 0 ? 7 : daysUntilSunday));
+  return nextSunday.toISOString().split('T')[0]; // YYYY-MM-DD format
+}
+
+async function getLastBonusLevelDate(): Promise<string | null> {
+  try {
+    const projectRoot = path.resolve(__dirname, "..");
+    const bonusLevelsFile = path.join(projectRoot, "src", "utils", "bonusLevels.ts");
+    const content = await fs.readFile(bonusLevelsFile, "utf8");
+    
+    // Extract dates from import statements
+    const importMatches = content.match(/import level(\d{8}) from "\.\/bonus-levels\/(\d{4}-\d{2}-\d{2})"/g);
+    if (!importMatches) return null;
+    
+    const dates = importMatches.map(match => {
+      const dateMatch = match.match(/(\d{4}-\d{2}-\d{2})/);
+      return dateMatch ? dateMatch[1] : null;
+    }).filter(Boolean).sort();
+    
+    return dates.length > 0 ? dates[dates.length - 1] : null;
+  } catch (error) {
+    console.log("Could not determine last bonus level date:", error);
+    return null;
+  }
+}
+
+async function getNextBonusLevelDate(): Promise<string> {
+  const lastDate = await getLastBonusLevelDate();
+  if (!lastDate) {
+    // If no previous date found, use next Sunday
+    return getNextSundayDate();
+  }
+  
+  // Add 7 days to the last date
+  const lastDateObj = new Date(lastDate + 'T00:00:00');
+  lastDateObj.setDate(lastDateObj.getDate() + 7);
+  return lastDateObj.toISOString().split('T')[0];
+}
+
+function formatDateForVariableName(date: string): string {
+  return date.replace(/-/g, '');
+}
+
 // Function to show available steps
 function showSteps() {
   console.log("Available automation steps:");
@@ -453,7 +681,12 @@ function showSteps() {
 const argv = yargs(hideBin(process.argv))
   .option("level", {
     type: "number",
-    description: "Level number to add",
+    description: "Level number to add (for regular levels)",
+  })
+  .option("bonus", {
+    type: "boolean",
+    default: false,
+    description: "Add a bonus level instead of a regular level",
   })
   .option("headless", {
     type: "boolean",
@@ -470,15 +703,21 @@ const argv = yargs(hideBin(process.argv))
     description: "Show all available steps and exit",
   })
   .check((argv) => {
-    if (!argv["show-steps"] && typeof argv.level !== "number") {
-      throw new Error(
-        'Argument "level" is required when not using --show-steps'
-      );
+    if (!argv["show-steps"]) {
+      if (argv.bonus) {
+        // For bonus levels, we don't need a level number
+        return true;
+      } else if (typeof argv.level !== "number") {
+        throw new Error(
+          'Argument "level" is required when not using --bonus or --show-steps'
+        );
+      }
     }
     return true;
   })
   .help().argv as {
   level?: number;
+  bonus: boolean;
   headless: boolean;
   "stop-at"?: string;
   "show-steps": boolean;
@@ -491,13 +730,23 @@ async function main() {
     return;
   }
 
-  // We know level exists here because of the check above
-  await addNewLevel(argv.level!, argv.headless, argv["stop-at"]).catch(
-    (error) => {
-      console.error("Failed to add level:", error);
-      process.exit(1);
-    }
-  );
+  if (argv.bonus) {
+    // Add bonus level
+    await addBonusLevel(argv.headless, argv["stop-at"]).catch(
+      (error) => {
+        console.error("Failed to add bonus level:", error);
+        process.exit(1);
+      }
+    );
+  } else {
+    // Add regular level - we know level exists here because of the check above
+    await addNewLevel(argv.level!, argv.headless, argv["stop-at"]).catch(
+      (error) => {
+        console.error("Failed to add level:", error);
+        process.exit(1);
+      }
+    );
+  }
 }
 
 main();

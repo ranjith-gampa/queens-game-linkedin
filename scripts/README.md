@@ -1,10 +1,10 @@
 # Scripts README
 
-This folder contains automation scripts for the Queens game clone project. The primary script is `addLevel.ts`, which automates the process of adding new levels to the game.
+This folder contains automation scripts for the Queens game clone project. The primary script is `addLevel.ts`, which automates the process of adding new levels (both regular and bonus) to the game.
 
 ## addLevel.ts
 
-This TypeScript script uses Playwright to automate adding a new level to the Queens game clone. It captures a screenshot from the LinkedIn Queens game and integrates it into your local level builder.
+This TypeScript script uses Playwright to automate adding new levels to the Queens game clone. It captures screenshots from the LinkedIn Queens game and integrates them into your local level builder.
 
 ### Prerequisites
 
@@ -14,38 +14,65 @@ This TypeScript script uses Playwright to automate adding a new level to the Que
 
 ### Usage
 
-The script is run through npm or directly with ts-node. It requires a level number unless showing available steps.
+The script supports both regular levels (numbered) and bonus levels (date-based, weekly on Sundays).
 
-#### Running directly with ts-node
+#### Adding Regular Levels
 
 ```bash
-# Add a new level
-ts-node scripts/addLevel.ts --level <number>
+# Add a new numbered level
+npx tsx scripts/addLevel.ts --level <number>
 
 # Run in headed mode
-ts-node scripts/addLevel.ts --level <number> --headless=false
+npx tsx scripts/addLevel.ts --level <number> --headless=false
 
+# Using npm script
+npm run add:level -- --level <number>
+```
+
+#### Adding Bonus Levels
+
+```bash
+# Add a new bonus level (automatically calculates next Sunday date)
+npx tsx scripts/addLevel.ts --bonus
+
+# Run in headed mode
+npx tsx scripts/addLevel.ts --bonus --headless=false
+
+# Using npm script
+npm run add:bonus
+```
+
+#### Other Options
+
+```bash
 # Stop at a specific step
-ts-node scripts/addLevel.ts --level <number> --stop-at=<step>
+npx tsx scripts/addLevel.ts --level <number> --stop-at=<step>
 
 # Show available steps
-ts-node scripts/addLevel.ts --show-steps
+npx tsx scripts/addLevel.ts --show-steps
 ```
 
 #### Examples
 
 ```bash
-# Add level 5 in headless mode
-ts-node scripts/addLevel.ts -- --level 5
+# Add level 432 in headless mode
+npx tsx scripts/addLevel.ts --level 432
 
-# Add level 10 with visible browser
-ts-node scripts/addLevel.ts -- --level 10 --headless=false
+# Add level 433 with visible browser
+npx tsx scripts/addLevel.ts --level 433 --headless=false
 
-# Add level 3 and stop after capturing screenshot
-ts-node scripts/addLevel.ts -- --level 3 --stop-at=capture
+# Add bonus level for this week (automatically uses 2025-07-06)
+npx tsx scripts/addLevel.ts --bonus --headless=false
+
+# Add level 430 and stop after capturing screenshot
+npx tsx scripts/addLevel.ts --level 430 --stop-at=capture
 
 # Show all available steps
-ts-node scripts/addLevel.ts -- --show-steps
+npx tsx scripts/addLevel.ts --show-steps
+
+# Using npm scripts
+npm run add:level -- --level 432
+npm run add:bonus -- --headless=false
 ```
 
 #### Options

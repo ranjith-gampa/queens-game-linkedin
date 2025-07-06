@@ -59,6 +59,8 @@
     "ptr:w": "npx prettier ./src --write",
     "ptr:c:levels": "npx prettier ./src/utils/levels --check",
     "ptr:w:levels": "npx prettier ./src/utils/levels --write",
+    "add:level": "npx tsx ./scripts/addLevel.ts",
+    "add:bonus": "npx tsx ./scripts/addLevel.ts --bonus",
     "expo": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
