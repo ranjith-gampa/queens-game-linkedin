@@ -6,6 +6,7 @@ import RootLayout from "@/layouts/RootLayout";
 import { UserProfile } from "@/utils/types";
 import { insertOrUpdateUser } from "@/utils/database";
 import { isMobile, isMac } from "@/utils/platform";
+import SyncManagement from "@/components/SyncManagement";
 
 const AVATARS = [
   "👩", "👨", "👱‍♀️", "👱", "👩‍🦰", "👨‍🦰", "👩‍🦱", "👨‍🦱", 
@@ -157,6 +158,11 @@ const PageProfile = () => {
             {isSaving ? t("Saving...") : t("Save Changes")}
           </Button>
         </div>
+      </div>
+
+      {/* Multi-Device Sync Section */}
+      <div className="max-w-md mx-auto mt-6">
+        <SyncManagement />
       </div>
     </RootLayout>
   );
