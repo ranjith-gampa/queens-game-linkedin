@@ -221,44 +221,45 @@ export async function uploadUserProfile(userData: any): Promise<{ success: boole
 }
 
 /**
- * Download user profile data from remote database
+ * Download user profile data from remote database using database function
  */
 export async function downloadUserProfile(userId: string): Promise<{ success: boolean; data?: any; error?: string }> {
     try {
-        const { data, error } = await supabase
-            .from('user_profiles')
-            .select('*')
-            .eq('user_id', userId)
-            .single();
+        const { data, error } = await supabase.rpc('get_user_profile', {
+            p_user_id: userId
+        });
 
         if (error) {
-            if (error.code === 'PGRST116') {
-                // No rows found
-                return { success: true, data: null };
-            }
-            console.error('Error downloading user profile:', error);
-            return { success: false, error: error.message };
+            console.warn('Database function get_user_profile failed, resorting to guest mode:', error);
+            // Resort to guest mode instead of fallback
+            return { success: true, data: null };
         }
 
-        // Transform the data to match our expected format
+        if (!data || data.length === 0) {
+            // No user profile found
+            return { success: true, data: null };
+        }
+
+        // Transform the function result data to match our expected format
+        const profileData = data[0] || data;
         const transformedData = {
-            userId: data.user_id,
-            username: data.username,
-            avatar: data.avatar,
-            completedLevels: data.completed_levels || [],
-            completionTimes: data.completion_times || [],
-            currentStreak: data.current_streak || 0,
-            maxStreak: data.max_streak || 0,
-            lastPlayedLevel: data.last_played_level || -1,
-            lastActivityDate: data.last_activity_date,
-            streakStartDate: data.streak_start_date,
-            settings: data.settings || {}
+            userId: profileData.user_id,
+            username: profileData.username,
+            avatar: profileData.avatar,
+            completedLevels: profileData.completed_levels || [],
+            completionTimes: profileData.completion_times || [],
+            currentStreak: profileData.current_streak || 0,
+            maxStreak: profileData.max_streak || 0,
+            lastPlayedLevel: profileData.last_played_level || -1,
+            lastActivityDate: profileData.last_activity_date,
+            streakStartDate: profileData.streak_start_date,
+            settings: profileData.settings || {}
         };
 
         return { success: true, data: transformedData };
     } catch (error) {
         console.error('Error in downloadUserProfile:', error);
-        return { success: false, error: 'Failed to download user profile' };
+        return { success: true, data: null }; // Resort to guest mode on any error
     }
 }
 
