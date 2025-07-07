@@ -36,8 +36,8 @@ const PageSettings = () => {
     setNotificationPermission(typeof window !== 'undefined' ? Notification.permission : 'default');
   }, []);
 
-  const handleTogglePWAInstallBanner = (enabled: boolean) => {
-    setPWAInstallBannerPreference(enabled);
+  const handleTogglePWAInstallBanner = async (enabled: boolean) => {
+    await setPWAInstallBannerPreference(enabled);
     setPWAInstallBannerEnabled(enabled);
     if (enabled) {
       // Clear any previous dismissal to allow banner to show immediately
@@ -45,8 +45,8 @@ const PageSettings = () => {
     }
   };
 
-  const handleTogglePWAOfflineSupport = (enabled: boolean) => {
-    setPWAOfflineSupportPreference(enabled);
+  const handleTogglePWAOfflineSupport = async (enabled: boolean) => {
+    await setPWAOfflineSupportPreference(enabled);
     setPWAOfflineSupportEnabled(enabled);
     // Show alert to user that they need to refresh the page
     if (enabled !== getPWAOfflineSupportPreference()) {
