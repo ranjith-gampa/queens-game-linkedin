@@ -135,7 +135,7 @@ echo "Test 7: Testing day detection logic..."
 
 current_day=$(date +%w)
 case $current_day in
-    0) echo "📅 Today is Sunday - would add bonus level" ;;
+    0) echo "📅 Today is Sunday - would add BOTH regular level AND bonus level" ;;
     1) echo "📅 Today is Monday - would add regular level" ;;
     2) echo "📅 Today is Tuesday - would add regular level" ;;
     3) echo "📅 Today is Wednesday - would add regular level" ;;

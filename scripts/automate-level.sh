@@ -150,8 +150,49 @@ main() {
         fi
         
         if [ "$day_of_week" = "0" ]; then
-            level_type="bonus"
-            identifier=$(get_bonus_date)
+            # Sunday - add both regular and bonus levels
+            log "Sunday detected - will add both regular and bonus levels"
+            
+            # First add regular level
+            local regular_identifier=$(get_next_level_number)
+            log "Adding regular level $regular_identifier first..."
+            
+            if ! check_level_exists "regular" "$regular_identifier"; then
+                if run_level_script "regular" "$regular_identifier" "$headless"; then
+                    log "Regular level $regular_identifier added successfully"
+                    if ! verify_level_created "regular" "$regular_identifier"; then
+                        log "ERROR: Regular level verification failed"
+                        exit 1
+                    fi
+                else
+                    log "ERROR: Failed to add regular level $regular_identifier"
+                    exit 1
+                fi
+            else
+                log "Regular level $regular_identifier already exists"
+            fi
+            
+            # Then add bonus level
+            local bonus_identifier=$(get_bonus_date)
+            log "Adding bonus level for $bonus_identifier..."
+            
+            if ! check_level_exists "bonus" "$bonus_identifier"; then
+                if run_level_script "bonus" "$bonus_identifier" "$headless"; then
+                    log "Bonus level for $bonus_identifier added successfully"
+                    if ! verify_level_created "bonus" "$bonus_identifier"; then
+                        log "ERROR: Bonus level verification failed"
+                        exit 1
+                    fi
+                else
+                    log "ERROR: Failed to add bonus level for $bonus_identifier"
+                    exit 1
+                fi
+            else
+                log "Bonus level for $bonus_identifier already exists"
+            fi
+            
+            log "Sunday automation completed - both levels processed"
+            exit 0
         else
             level_type="regular"
             identifier=$(get_next_level_number)
@@ -207,6 +248,10 @@ elif [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
     echo "  level_type: 'auto', 'regular', or 'bonus' (default: auto)"
     echo "  identifier: level number for regular, date for bonus (auto-determined if not provided)"
     echo "  headless: true/false for browser mode (default: true)"
+    echo ""
+    echo "Auto mode behavior:"
+    echo "  Monday-Saturday: Adds regular level only"
+    echo "  Sunday: Adds BOTH regular level AND bonus level"
     echo ""
     echo "Examples:"
     echo "  $0                           # Auto-determine based on day of week"
