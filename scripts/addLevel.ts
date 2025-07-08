@@ -186,21 +186,66 @@ async function navigateToLevelBuilder(page: Page): Promise<void> {
   console.log("Navigating to level builder...");
   
   try {
-    await page.goto("http://localhost:3000/level-builder?skipWelcome=true", {
-      waitUntil: "domcontentloaded",
-      timeout: 30000
-    });
+    // Track all network activity
+    const failedRequests: string[] = [];
+    const successfulRequests: string[] = [];
     
-    // Listen for console errors
+    // Listen for ALL console messages (not just errors)
     page.on('console', msg => {
-      if (msg.type() === 'error') {
-        console.log('Browser console error:', msg.text());
-      }
+      const type = msg.type();
+      const text = msg.text();
+      console.log(`Browser console [${type}]: ${text}`);
     });
     
     // Listen for page errors
     page.on('pageerror', error => {
       console.log('Page error:', error.message);
+    });
+    
+    // Listen for failed requests
+    page.on('requestfailed', request => {
+      const url = request.url();
+      const failure = request.failure();
+      const errorText = failure?.errorText || 'unknown error';
+      console.log(`❌ Failed request: ${url} - ${errorText}`);
+      failedRequests.push(`${url}: ${errorText}`);
+    });
+    
+    // Listen for all responses to track what's loading successfully
+    page.on('response', response => {
+      const url = response.url();
+      const status = response.status();
+      if (url.includes('localhost:3000') || url.includes('.js') || url.includes('.ts') || url.includes('.jsx')) {
+        if (status >= 200 && status < 400) {
+          console.log(`✅ Successful request: ${status} ${url}`);
+          successfulRequests.push(url);
+        } else {
+          console.log(`❌ Failed response: ${status} ${url}`);
+          failedRequests.push(`${url}: HTTP ${status}`);
+        }
+      }
+    });
+    
+    // First, check if the server is actually responding correctly
+    console.log("Checking server health...");
+    const response = await page.goto("http://localhost:3000/", {
+      waitUntil: "domcontentloaded",
+      timeout: 15000
+    });
+    console.log("Server response status:", response?.status());
+    
+    if (!response || response.status() !== 200) {
+      throw new Error(`Server health check failed: ${response?.status() || 'no response'}`);
+    }
+    
+    // Wait for initial network activity to settle
+    await page.waitForLoadState('networkidle', { timeout: 10000 });
+    
+    // Now navigate to the level builder
+    console.log("Navigating to level builder page...");
+    await page.goto("http://localhost:3000/level-builder?skipWelcome=true", {
+      waitUntil: "domcontentloaded",
+      timeout: 30000
     });
     
     // Wait for the page to fully render
@@ -217,6 +262,24 @@ async function navigateToLevelBuilder(page: Page): Promise<void> {
     });
     console.log("JavaScript enabled:", jsEnabled);
     
+    // Check what scripts are loaded
+    console.log("Checking loaded scripts...");
+    const scripts = await page.evaluate(() => {
+      const scriptElements = Array.from(document.querySelectorAll('script'));
+      return scriptElements.map(script => ({
+        src: script.src,
+        type: script.type,
+        hasContent: script.textContent ? script.textContent.length > 0 : false
+      }));
+    });
+    console.log("Scripts found:", scripts);
+    
+    // Check if Vite's client script is present
+    const viteClient = await page.evaluate(() => {
+      return !!document.querySelector('script[type="module"]');
+    });
+    console.log("Vite module script found:", viteClient);
+    
     if (!jsEnabled) {
       throw new Error("JavaScript is not enabled in the browser context");
     }
@@ -224,6 +287,24 @@ async function navigateToLevelBuilder(page: Page): Promise<void> {
     // Wait for React app to mount by checking for content in the root element
     console.log("Waiting for React app to mount...");
     try {
+      // First wait for Vite scripts to load
+      console.log("Waiting for Vite scripts to load...");
+      await page.waitForFunction(
+        () => {
+          const scripts = Array.from(document.querySelectorAll('script[type="module"]')) as HTMLScriptElement[];
+          const viteClient = scripts.some(s => s.src.includes('@vite/client'));
+          const mainApp = scripts.some(s => s.src.includes('src/index.jsx') || s.src.includes('main.jsx'));
+          console.log('Vite scripts check - client:', viteClient, 'app:', mainApp);
+          return viteClient && mainApp;
+        },
+        { timeout: 15000 }
+      );
+      console.log("Vite scripts appear to be loaded");
+      
+      // Wait additional time for modules to execute
+      await page.waitForTimeout(5000);
+      
+      // Now wait for React content
       await page.waitForFunction(
         () => {
           const root = document.querySelector('#root');
@@ -233,6 +314,8 @@ async function navigateToLevelBuilder(page: Page): Promise<void> {
           const content = root.textContent || '';
           const hasJSMessage = content.includes('You need to enable JavaScript');
           const hasRealContent = content.includes('Level Builder') || content.includes('Queens') && content.length > 100;
+          
+          console.log('Checking React mount - content length:', content.length, 'hasJSMessage:', hasJSMessage, 'hasRealContent:', hasRealContent);
           
           return hasRealContent && !hasJSMessage;
         },
@@ -248,6 +331,19 @@ async function navigateToLevelBuilder(page: Page): Promise<void> {
         return root ? root.textContent : 'No root element found';
       });
       console.log("Root element content:", rootContent?.substring(0, 200) || 'No content');
+      
+      // Check the full HTML to see what's actually loaded
+      const fullHTML = await page.content();
+      console.log("Page HTML length:", fullHTML.length);
+      console.log("HTML includes React root:", fullHTML.includes('<div id="root">'));
+      console.log("HTML includes script tags:", fullHTML.includes('<script'));
+      
+      // Try to manually trigger React if it exists
+      console.log("Attempting to manually check for React...");
+      const reactPresent = await page.evaluate(() => {
+        return typeof (window as any).React !== 'undefined' || typeof (window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined';
+      });
+      console.log("React detected in window:", reactPresent);
     }
     
     // Verify the page loaded correctly by checking for multiple possible indicators
