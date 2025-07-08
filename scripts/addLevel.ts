@@ -186,15 +186,14 @@ async function navigateToLevelBuilder(page: Page): Promise<void> {
   console.log("Navigating to level builder...");
   
   try {
-    // Track all network activity
+    // Track only critical failures
     const failedRequests: string[] = [];
-    const successfulRequests: string[] = [];
     
-    // Listen for ALL console messages (not just errors)
+    // Listen for console errors only
     page.on('console', msg => {
-      const type = msg.type();
-      const text = msg.text();
-      console.log(`Browser console [${type}]: ${text}`);
+      if (msg.type() === 'error') {
+        console.log(`Browser console error: ${msg.text()}`);
+      }
     });
     
     // Listen for page errors
@@ -202,27 +201,26 @@ async function navigateToLevelBuilder(page: Page): Promise<void> {
       console.log('Page error:', error.message);
     });
     
-    // Listen for failed requests
+    // Listen for failed requests (but only log critical ones)
     page.on('requestfailed', request => {
       const url = request.url();
       const failure = request.failure();
       const errorText = failure?.errorText || 'unknown error';
-      console.log(`❌ Failed request: ${url} - ${errorText}`);
-      failedRequests.push(`${url}: ${errorText}`);
+      
+      // Only log failures for localhost requests (not external tracking, etc.)
+      if (url.includes('localhost:3000')) {
+        console.log(`❌ Failed request: ${url} - ${errorText}`);
+        failedRequests.push(`${url}: ${errorText}`);
+      }
     });
     
-    // Listen for all responses to track what's loading successfully
+    // Only log failed responses for localhost
     page.on('response', response => {
       const url = response.url();
       const status = response.status();
-      if (url.includes('localhost:3000') || url.includes('.js') || url.includes('.ts') || url.includes('.jsx')) {
-        if (status >= 200 && status < 400) {
-          console.log(`✅ Successful request: ${status} ${url}`);
-          successfulRequests.push(url);
-        } else {
-          console.log(`❌ Failed response: ${status} ${url}`);
-          failedRequests.push(`${url}: HTTP ${status}`);
-        }
+      if (url.includes('localhost:3000') && (status < 200 || status >= 400)) {
+        console.log(`❌ Failed response: ${status} ${url}`);
+        failedRequests.push(`${url}: HTTP ${status}`);
       }
     });
     
@@ -262,17 +260,9 @@ async function navigateToLevelBuilder(page: Page): Promise<void> {
     });
     console.log("JavaScript enabled:", jsEnabled);
     
-    // Check what scripts are loaded
-    console.log("Checking loaded scripts...");
-    const scripts = await page.evaluate(() => {
-      const scriptElements = Array.from(document.querySelectorAll('script'));
-      return scriptElements.map(script => ({
-        src: script.src,
-        type: script.type,
-        hasContent: script.textContent ? script.textContent.length > 0 : false
-      }));
-    });
-    console.log("Scripts found:", scripts);
+    if (!jsEnabled) {
+      throw new Error("JavaScript is not enabled in the browser context");
+    }
     
     // Check if Vite's client script is present
     const viteClient = await page.evaluate(() => {
@@ -280,31 +270,10 @@ async function navigateToLevelBuilder(page: Page): Promise<void> {
     });
     console.log("Vite module script found:", viteClient);
     
-    if (!jsEnabled) {
-      throw new Error("JavaScript is not enabled in the browser context");
-    }
-    
     // Wait for React app to mount by checking for content in the root element
     console.log("Waiting for React app to mount...");
     try {
-      // First wait for Vite scripts to load
-      console.log("Waiting for Vite scripts to load...");
-      await page.waitForFunction(
-        () => {
-          const scripts = Array.from(document.querySelectorAll('script[type="module"]')) as HTMLScriptElement[];
-          const viteClient = scripts.some(s => s.src.includes('@vite/client'));
-          const mainApp = scripts.some(s => s.src.includes('src/index.jsx') || s.src.includes('main.jsx'));
-          console.log('Vite scripts check - client:', viteClient, 'app:', mainApp);
-          return viteClient && mainApp;
-        },
-        { timeout: 15000 }
-      );
-      console.log("Vite scripts appear to be loaded");
-      
-      // Wait additional time for modules to execute
-      await page.waitForTimeout(5000);
-      
-      // Now wait for React content
+      // Wait for React content with simplified logging
       await page.waitForFunction(
         () => {
           const root = document.querySelector('#root');
@@ -313,9 +282,7 @@ async function navigateToLevelBuilder(page: Page): Promise<void> {
           // Check if React has mounted by looking for actual content (not just the JS disabled message)
           const content = root.textContent || '';
           const hasJSMessage = content.includes('You need to enable JavaScript');
-          const hasRealContent = content.includes('Level Builder') || content.includes('Queens') && content.length > 100;
-          
-          console.log('Checking React mount - content length:', content.length, 'hasJSMessage:', hasJSMessage, 'hasRealContent:', hasRealContent);
+          const hasRealContent = content.includes('Level Builder') || (content.includes('Queens') && content.length > 100);
           
           return hasRealContent && !hasJSMessage;
         },
@@ -332,78 +299,48 @@ async function navigateToLevelBuilder(page: Page): Promise<void> {
       });
       console.log("Root element content:", rootContent?.substring(0, 200) || 'No content');
       
-      // Check the full HTML to see what's actually loaded
-      const fullHTML = await page.content();
-      console.log("Page HTML length:", fullHTML.length);
-      console.log("HTML includes React root:", fullHTML.includes('<div id="root">'));
-      console.log("HTML includes script tags:", fullHTML.includes('<script'));
+      // Check if there are critical missing pieces
+      const hasReactRoot = await page.evaluate(() => !!document.querySelector('#root'));
+      const hasScriptTags = await page.evaluate(() => document.querySelectorAll('script').length > 0);
+      console.log("Has React root:", hasReactRoot, "Has script tags:", hasScriptTags);
       
-      // Try to manually trigger React if it exists
-      console.log("Attempting to manually check for React...");
-      const reactPresent = await page.evaluate(() => {
-        return typeof (window as any).React !== 'undefined' || typeof (window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined';
-      });
-      console.log("React detected in window:", reactPresent);
+      // Show critical failures if any
+      if (failedRequests.length > 0) {
+        console.log("Critical failed requests:", failedRequests);
+      }
     }
     
-    // Verify the page loaded correctly by checking for multiple possible indicators
+    // Verify the page loaded correctly by checking for key components
     console.log("Verifying page load...");
     
-    // Check for the main heading with multiple possible texts (including translations)
+    const levelBuilderHeading = await page.locator('h1:has-text("Level Builder")').count();
+    const selectorExists = await page.locator('[data-testid="level-builder-selector"]').count();
     const headingExists = await page.locator('h1').count();
+    
+    console.log("Level Builder heading found:", levelBuilderHeading);
+    console.log("LevelBuilderSelector component found:", selectorExists);
     console.log("Total h1 elements found:", headingExists);
     
-    const levelBuilderHeading = await page.locator('h1:has-text("Level Builder")').count();
-    console.log("'Level Builder' heading found:", levelBuilderHeading);
-    
-    // Check for other language variants
-    const spanishHeading = await page.locator('h1:has-text("Constructor de Niveles")').count();
-    const frenchHeading = await page.locator('h1:has-text("Créateur de niveaux")').count();
-    console.log("Alternative language headings - Spanish:", spanishHeading, "French:", frenchHeading);
-    
-    const allHeadingText = await page.locator('h1').allTextContents();
-    console.log("All h1 text content:", allHeadingText);
-    
-    // Alternative check: look for the LevelBuilderSelector component
-    const selectorExists = await page.locator('[data-testid="level-builder-selector"]').count();
-    console.log("LevelBuilderSelector component found:", selectorExists);
-    
-    // Alternative check: look for any key components that should be on the level builder page
-    const levelNameInput = await page.locator('input[name="levelName"]').count();
-    console.log("Level name input found:", levelNameInput);
-    
-    const boardSizeInput = await page.locator('input[placeholder*="Board size"], input[name*="boardSize"]').count();
-    console.log("Board size input found:", boardSizeInput);
-    
-    // Check if we're on a 404 or error page
-    const notFoundText = await page.locator(':has-text("404"), :has-text("Not Found"), :has-text("Page not found")').count();
-    console.log("404/Not Found indicators:", notFoundText);
-    
     // If we have at least one of the key components, consider the page loaded
-    const pageLoadedSuccessfully = levelBuilderHeading > 0 || spanishHeading > 0 || frenchHeading > 0 || 
-                                   selectorExists > 0 || levelNameInput > 0 || boardSizeInput > 0;
+    const pageLoadedSuccessfully = levelBuilderHeading > 0 || selectorExists > 0;
     
     if (!pageLoadedSuccessfully) {
       // Take a screenshot to see what's on the page
       await page.screenshot({ path: "debug-level-builder-page.png", fullPage: true });
       console.log("Debug screenshot saved as debug-level-builder-page.png");
       
-      // Check the current URL
+      // Get basic debug info
       const currentUrl = page.url();
-      console.log("Current URL:", currentUrl);
-      
-      // Check page title
       const pageTitle = await page.title();
-      console.log("Page title:", pageTitle);
-      
-      // Get page text content for debugging
       const bodyText = await page.locator('body').textContent();
-      console.log("Page body text (first 500 chars):", bodyText?.substring(0, 500) || "No body text");
       
-      // Check if there are any error messages
-      const errorMessages = await page.locator('[role="alert"], .error, .alert-error').allTextContents();
-      if (errorMessages.length > 0) {
-        console.log("Error messages found:", errorMessages);
+      console.log("Current URL:", currentUrl);
+      console.log("Page title:", pageTitle);
+      console.log("Page body text (first 200 chars):", bodyText?.substring(0, 200) || "No body text");
+      
+      // Show any critical request failures
+      if (failedRequests.length > 0) {
+        console.log("Failed requests that might be causing the issue:", failedRequests);
       }
       
       // Try waiting a bit longer and check again
@@ -426,6 +363,11 @@ async function navigateToLevelBuilder(page: Page): Promise<void> {
     // Take a debug screenshot
     await page.screenshot({ path: "debug-navigation-failure.png", fullPage: true });
     console.log("Debug screenshot saved as debug-navigation-failure.png");
+    
+    // Save HTML for debugging in CI
+    const htmlContent = await page.content();
+    await fs.writeFile("debug-navigation-failure.html", htmlContent);
+    console.log("Debug HTML saved as debug-navigation-failure.html");
     
     throw error;
   }
