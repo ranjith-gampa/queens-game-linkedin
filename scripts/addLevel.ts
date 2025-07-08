@@ -210,19 +210,44 @@ async function navigateToLevelBuilder(page: Page): Promise<void> {
     // Wait extra time for React components to mount
     await page.waitForTimeout(5000);
     
+    // Check if JavaScript is working
+    console.log("Checking if JavaScript is enabled...");
+    const jsEnabled = await page.evaluate(() => {
+      return typeof window !== 'undefined' && typeof document !== 'undefined';
+    });
+    console.log("JavaScript enabled:", jsEnabled);
+    
+    if (!jsEnabled) {
+      throw new Error("JavaScript is not enabled in the browser context");
+    }
+    
     // Wait for React app to mount by checking for content in the root element
     console.log("Waiting for React app to mount...");
     try {
       await page.waitForFunction(
         () => {
-          const root = document.querySelector('#root, [data-reactroot], .App');
-          return root && root.textContent && root.textContent.trim().length > 0;
+          const root = document.querySelector('#root');
+          if (!root) return false;
+          
+          // Check if React has mounted by looking for actual content (not just the JS disabled message)
+          const content = root.textContent || '';
+          const hasJSMessage = content.includes('You need to enable JavaScript');
+          const hasRealContent = content.includes('Level Builder') || content.includes('Queens') && content.length > 100;
+          
+          return hasRealContent && !hasJSMessage;
         },
-        { timeout: 15000 }
+        { timeout: 20000 }
       );
       console.log("React app appears to have mounted with content");
     } catch (error) {
-      console.log("Timeout waiting for React app to mount, proceeding anyway...");
+      console.log("Timeout waiting for React app to mount, checking content...");
+      
+      // Debug what's actually in the root element
+      const rootContent = await page.evaluate(() => {
+        const root = document.querySelector('#root');
+        return root ? root.textContent : 'No root element found';
+      });
+      console.log("Root element content:", rootContent?.substring(0, 200) || 'No content');
     }
     
     // Verify the page loaded correctly by checking for multiple possible indicators
@@ -723,9 +748,24 @@ async function addNewLevel(
   headless: boolean = true,
   stopAt?: string
 ): Promise<void> {
-  const browser: Browser = await chromium.launch({ headless });
+  const browser: Browser = await chromium.launch({ 
+    headless,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-web-security',
+      '--disable-features=VizDisplayCompositor'
+    ]
+  });
   const context = await browser.newContext({
     permissions: ["clipboard-read", "clipboard-write"],
+    // Ensure JavaScript is enabled
+    javaScriptEnabled: true,
+    // Set a user agent to avoid being blocked
+    userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    // Set viewport size
+    viewport: { width: 1280, height: 720 }
   });
   const page: Page = await context.newPage();
   const stopStep = stopAt?.toLowerCase() as AutomationSteps;
@@ -804,9 +844,24 @@ async function addBonusLevel(
   headless: boolean = true,
   stopAt?: string
 ): Promise<void> {
-  const browser: Browser = await chromium.launch({ headless });
+  const browser: Browser = await chromium.launch({ 
+    headless,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-web-security',
+      '--disable-features=VizDisplayCompositor'
+    ]
+  });
   const context = await browser.newContext({
     permissions: ["clipboard-read", "clipboard-write"],
+    // Ensure JavaScript is enabled
+    javaScriptEnabled: true,
+    // Set a user agent to avoid being blocked
+    userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    // Set viewport size
+    viewport: { width: 1280, height: 720 }
   });
   const page: Page = await context.newPage();
   const stopStep = stopAt?.toLowerCase() as AutomationSteps;
