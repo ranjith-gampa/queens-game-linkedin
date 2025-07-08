@@ -191,6 +191,18 @@ async function navigateToLevelBuilder(page: Page): Promise<void> {
       timeout: 30000
     });
     
+    // Listen for console errors
+    page.on('console', msg => {
+      if (msg.type() === 'error') {
+        console.log('Browser console error:', msg.text());
+      }
+    });
+    
+    // Listen for page errors
+    page.on('pageerror', error => {
+      console.log('Page error:', error.message);
+    });
+    
     // Wait for the page to fully render
     console.log("Waiting for level builder to load...");
     await page.waitForLoadState('networkidle', { timeout: 30000 });
@@ -198,12 +210,59 @@ async function navigateToLevelBuilder(page: Page): Promise<void> {
     // Wait extra time for React components to mount
     await page.waitForTimeout(5000);
     
-    // Verify the page loaded correctly by checking for the main heading
-    console.log("Verifying page load...");
-    const headingExists = await page.locator('h1:has-text("Level Builder")').count();
-    console.log("Level Builder heading found:", headingExists);
+    // Wait for React app to mount by checking for content in the root element
+    console.log("Waiting for React app to mount...");
+    try {
+      await page.waitForFunction(
+        () => {
+          const root = document.querySelector('#root, [data-reactroot], .App');
+          return root && root.textContent && root.textContent.trim().length > 0;
+        },
+        { timeout: 15000 }
+      );
+      console.log("React app appears to have mounted with content");
+    } catch (error) {
+      console.log("Timeout waiting for React app to mount, proceeding anyway...");
+    }
     
-    if (headingExists === 0) {
+    // Verify the page loaded correctly by checking for multiple possible indicators
+    console.log("Verifying page load...");
+    
+    // Check for the main heading with multiple possible texts (including translations)
+    const headingExists = await page.locator('h1').count();
+    console.log("Total h1 elements found:", headingExists);
+    
+    const levelBuilderHeading = await page.locator('h1:has-text("Level Builder")').count();
+    console.log("'Level Builder' heading found:", levelBuilderHeading);
+    
+    // Check for other language variants
+    const spanishHeading = await page.locator('h1:has-text("Constructor de Niveles")').count();
+    const frenchHeading = await page.locator('h1:has-text("Créateur de niveaux")').count();
+    console.log("Alternative language headings - Spanish:", spanishHeading, "French:", frenchHeading);
+    
+    const allHeadingText = await page.locator('h1').allTextContents();
+    console.log("All h1 text content:", allHeadingText);
+    
+    // Alternative check: look for the LevelBuilderSelector component
+    const selectorExists = await page.locator('[data-testid="level-builder-selector"]').count();
+    console.log("LevelBuilderSelector component found:", selectorExists);
+    
+    // Alternative check: look for any key components that should be on the level builder page
+    const levelNameInput = await page.locator('input[name="levelName"]').count();
+    console.log("Level name input found:", levelNameInput);
+    
+    const boardSizeInput = await page.locator('input[placeholder*="Board size"], input[name*="boardSize"]').count();
+    console.log("Board size input found:", boardSizeInput);
+    
+    // Check if we're on a 404 or error page
+    const notFoundText = await page.locator(':has-text("404"), :has-text("Not Found"), :has-text("Page not found")').count();
+    console.log("404/Not Found indicators:", notFoundText);
+    
+    // If we have at least one of the key components, consider the page loaded
+    const pageLoadedSuccessfully = levelBuilderHeading > 0 || spanishHeading > 0 || frenchHeading > 0 || 
+                                   selectorExists > 0 || levelNameInput > 0 || boardSizeInput > 0;
+    
+    if (!pageLoadedSuccessfully) {
       // Take a screenshot to see what's on the page
       await page.screenshot({ path: "debug-level-builder-page.png", fullPage: true });
       console.log("Debug screenshot saved as debug-level-builder-page.png");
@@ -216,7 +275,27 @@ async function navigateToLevelBuilder(page: Page): Promise<void> {
       const pageTitle = await page.title();
       console.log("Page title:", pageTitle);
       
-      throw new Error("Level Builder page did not load correctly - heading not found");
+      // Get page text content for debugging
+      const bodyText = await page.locator('body').textContent();
+      console.log("Page body text (first 500 chars):", bodyText?.substring(0, 500) || "No body text");
+      
+      // Check if there are any error messages
+      const errorMessages = await page.locator('[role="alert"], .error, .alert-error').allTextContents();
+      if (errorMessages.length > 0) {
+        console.log("Error messages found:", errorMessages);
+      }
+      
+      // Try waiting a bit longer and check again
+      console.log("Trying additional wait and re-check...");
+      await page.waitForTimeout(10000);
+      
+      const retryHeading = await page.locator('h1:has-text("Level Builder")').count();
+      const retrySelector = await page.locator('[data-testid="level-builder-selector"]').count();
+      console.log("After additional wait - heading:", retryHeading, "selector:", retrySelector);
+      
+      if (retryHeading === 0 && retrySelector === 0) {
+        throw new Error("Level Builder page did not load correctly - no key components found after extended wait");
+      }
     }
     
     console.log("Level builder loaded successfully");
