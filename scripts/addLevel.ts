@@ -1,5 +1,6 @@
 import { chromium, Browser, Page, Frame } from "playwright";
 import * as fs from "fs/promises";
+import * as fsSync from "fs";
 import * as path from "path";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
@@ -193,24 +194,54 @@ async function uploadScreenshot(
   screenshotPath: string
 ): Promise<void> {
   console.log("Uploading screenshot...");
+  console.log("Screenshot path:", screenshotPath);
+  
   try {
-    const fileInput = await page.waitForSelector("#screenshot-upload", {
-      state: "attached",
-      timeout: 15000,
-    });
+    // First, wait for the page to be fully loaded and the file input to be present
+    console.log("Waiting for page to be ready...");
+    await page.waitForLoadState('networkidle');
+    
+    // Check if the file input exists in the DOM
+    console.log("Checking if file input exists...");
+    const inputExists = await page.locator("#screenshot-upload").count();
+    console.log("File input count:", inputExists);
+    
+    if (inputExists === 0) {
+      throw new Error("File input #screenshot-upload not found in DOM");
+    }
+    
+    // Get the hidden file input without waiting for visibility (since it's intentionally hidden)
+    console.log("Getting hidden file input...");
+    const fileInput = page.locator("#screenshot-upload");
+    await fileInput.waitFor({ state: 'attached', timeout: 15000 });
+    
+    // Check that the file exists before uploading
+    if (!fsSync.existsSync(screenshotPath)) {
+      throw new Error(`Screenshot file does not exist: ${screenshotPath}`);
+    }
+    
+    console.log("Uploading file to input...");
+    // Upload the file to the hidden input
     await fileInput.setInputFiles(screenshotPath);
     console.log("Screenshot uploaded successfully");
-    await page.waitForTimeout(1000);
+    
+    // Wait a bit for the upload to process
+    await page.waitForTimeout(2000);
   } catch (error) {
     console.log(
       "Upload failed:",
       error instanceof Error ? error.message : String(error)
     );
+    
+    // Save a debug screenshot
     await page.screenshot({ path: "debug-upload-failure.png" });
     console.log("Debug screenshot saved as debug-upload-failure.png");
-    const content = await page.content();
-    await fs.writeFile("debug-upload-failure.html", content);
-    console.log("Page source saved to debug-upload-failure.html");
+    
+    // Save the page HTML for debugging
+    const htmlContent = await page.content();
+    await fs.writeFile("debug-upload-failure.html", htmlContent);
+    console.log("Debug HTML saved as debug-upload-failure.html");
+    
     throw error;
   }
 }
@@ -226,11 +257,15 @@ async function selectLinkedInButton(page: Page): Promise<void> {
     );
     await button.click();
     console.log("LinkedIn selected.");
+    
+    // Wait for UI to update after selection
+    await page.waitForTimeout(1000);
   } catch (error) {
     console.log(
       "Error selecting LinkedIn:",
       error instanceof Error ? error.message : String(error)
     );
+    throw error;
   }
 }
 
@@ -518,13 +553,13 @@ async function addNewLevel(
     await navigateToLevelBuilder(page);
     if (stopStep === AutomationSteps.BUILDER) return;
 
-    // Step 5: Upload screenshot
-    await uploadScreenshot(page, screenshotPath);
-    if (stopStep === AutomationSteps.UPLOAD) return;
-
-    // Step 6: Select LinkedIn level type
+    // Step 5: Select LinkedIn level type (do this before upload)
     await selectLinkedInButton(page);
     if (stopStep === AutomationSteps.LINKEDIN) return;
+
+    // Step 6: Upload screenshot
+    await uploadScreenshot(page, screenshotPath);
+    if (stopStep === AutomationSteps.UPLOAD) return;
 
     // Step 7: Set level name
     await setLevelName(page, levelNumber.toString());
@@ -602,13 +637,13 @@ async function addBonusLevel(
     await navigateToLevelBuilder(page);
     if (stopStep === AutomationSteps.BUILDER) return;
 
-    // Step 5: Upload screenshot
-    await uploadScreenshot(page, screenshotPath);
-    if (stopStep === AutomationSteps.UPLOAD) return;
-
-    // Step 6: Select LinkedIn level type
+    // Step 5: Select LinkedIn level type (do this before upload)
     await selectLinkedInButton(page);
     if (stopStep === AutomationSteps.LINKEDIN) return;
+
+    // Step 6: Upload screenshot
+    await uploadScreenshot(page, screenshotPath);
+    if (stopStep === AutomationSteps.UPLOAD) return;
 
     // Step 7: Set level name
     await setLevelName(page, dateString);
