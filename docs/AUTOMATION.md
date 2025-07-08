@@ -7,7 +7,7 @@ This document describes the automated level addition system for the Queens Game 
 The project now includes automated level addition that runs daily at 00:00 AM Pacific Time. The system automatically:
 
 - Adds regular levels on weekdays (Monday-Saturday)
-- Adds bonus levels on Sundays
+- Adds **both regular AND bonus levels** on Sundays
 - Commits and pushes changes to GitHub
 - Triggers Vercel deployment automatically
 
@@ -96,10 +96,10 @@ npm run add:bonus
 - **Frequency**: Daily
 - **Action**: Adds the next sequential regular level
 
-### Bonus Levels (Sunday)
+### Sundays (Double Addition)
 - **Time**: 00:00 AM Pacific Time  
 - **Frequency**: Weekly
-- **Action**: Adds a bonus level for the current Sunday date
+- **Action**: Adds **both** the next sequential regular level AND a bonus level for the current Sunday date
 
 ## Error Handling
 

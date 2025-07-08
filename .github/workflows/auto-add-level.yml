@@ -54,12 +54,20 @@ jobs:
         ./scripts/automate-level.sh auto 2>&1 | tee automation.log
         
         # Extract information from the log for later steps
-        if grep -q "regular level" automation.log; then
+        day_of_week="${{ steps.date.outputs.day_of_week }}"
+        current_date="${{ steps.date.outputs.current_date }}"
+        
+        if [ "$day_of_week" = "0" ]; then
+          # Sunday - both levels added
+          echo "level_type=both" >> $GITHUB_OUTPUT
+          level_number=$(grep "regular level" automation.log | grep -o '[0-9]\+' | tail -1)
+          echo "level_number=$level_number" >> $GITHUB_OUTPUT
+          echo "current_date=$current_date" >> $GITHUB_OUTPUT
+        elif grep -q "regular level" automation.log; then
           level_number=$(grep "regular level" automation.log | grep -o '[0-9]\+' | tail -1)
           echo "level_type=regular" >> $GITHUB_OUTPUT
           echo "level_number=$level_number" >> $GITHUB_OUTPUT
         elif grep -q "bonus level" automation.log; then
-          current_date=$(TZ=America/Los_Angeles date +%Y-%m-%d)
           echo "level_type=bonus" >> $GITHUB_OUTPUT
           echo "current_date=$current_date" >> $GITHUB_OUTPUT
         fi
@@ -84,7 +92,10 @@ jobs:
         level_type="${{ steps.add_level.outputs.level_type }}"
         current_date="${{ steps.date.outputs.current_date }}"
         
-        if [ "$level_type" = "bonus" ]; then
+        if [ "$level_type" = "both" ]; then
+          level_number="${{ steps.add_level.outputs.level_number }}"
+          commit_message="Auto-add level $level_number and bonus level for $current_date (Sunday)"
+        elif [ "$level_type" = "bonus" ]; then
           commit_message="Auto-add bonus level for $current_date"
         else
           level_number="${{ steps.add_level.outputs.level_number }}"
@@ -117,7 +128,10 @@ jobs:
           const level_number = '${{ steps.add_level.outputs.level_number }}';
           
           let title, body;
-          if (level_type === 'bonus') {
+          if (level_type === 'both') {
+            title = `Failed to auto-add levels (regular ${level_number} and bonus) for ${current_date}`;
+            body = `The automated level addition failed for ${current_date}. Should have added both regular level ${level_number} and bonus level.\n\nPlease check the workflow logs and debug artifacts.`;
+          } else if (level_type === 'bonus') {
             title = `Failed to auto-add bonus level for ${current_date}`;
             body = `The automated bonus level addition failed for ${current_date}.\n\nPlease check the workflow logs and debug artifacts.`;
           } else {
@@ -139,7 +153,11 @@ jobs:
         level_type="${{ steps.add_level.outputs.level_type }}"
         current_date="${{ steps.date.outputs.current_date }}"
         
-        if [ "$level_type" = "bonus" ]; then
+        if [ "$level_type" = "both" ]; then
+          level_number="${{ steps.add_level.outputs.level_number }}"
+          branch_name="auto-add-both-levels-$level_number-$current_date"
+          pr_title="Auto-add level $level_number and bonus level for $current_date (Sunday)"
+        elif [ "$level_type" = "bonus" ]; then
           branch_name="auto-add-bonus-level-$current_date"
           pr_title="Auto-add bonus level for $current_date"
         else
@@ -165,7 +183,10 @@ jobs:
         has_changes="${{ steps.changes.outputs.has_changes }}"
         
         if [ "$has_changes" = "true" ]; then
-          if [ "$level_type" = "bonus" ]; then
+          if [ "$level_type" = "both" ]; then
+            level_number="${{ steps.add_level.outputs.level_number }}"
+            echo "✅ Successfully added level $level_number and bonus level for $current_date (Sunday)"
+          elif [ "$level_type" = "bonus" ]; then
             echo "✅ Successfully added bonus level for $current_date"
           else
             level_number="${{ steps.add_level.outputs.level_number }}"
