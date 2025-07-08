@@ -335,10 +335,10 @@ const useGameLogic = ({
     });
   };
 
-  const toggleAutoPlaceXs = () => {
+  const toggleAutoPlaceXs = async () => {
     const newSetting = !autoPlaceXs;
     setAutoPlaceXs(newSetting);
-    setAutoPlaceXsPreference(newSetting);
+    await setAutoPlaceXsPreference(newSetting);
   };
 
   const handleTimeUpdate = (time: number) => {

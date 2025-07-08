@@ -10,6 +10,23 @@ export const safeParseLocalStorage = (key: string, defaultValue: any = null) => 
   }
 };
 
+/**
+ * Set a setting in localStorage and sync to database
+ */
+async function setSettingWithSync(key: string, value: any): Promise<void> {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(key, JSON.stringify(value));
+    
+    // Import dynamically to avoid circular dependency
+    try {
+      const { syncSettingToDatabase } = await import('./database');
+      await syncSettingToDatabase(key, value);
+    } catch (error) {
+      console.warn('Failed to sync setting to database:', error);
+    }
+  }
+}
+
 // Function to clean up corrupted localStorage entries
 export const cleanupCorruptedLocalStorage = () => {
   if (typeof window === 'undefined') return;
@@ -93,10 +110,8 @@ export const resetCompletedLevels = () => {
   }
 };
 
-export const setClashingQueensPreference = (enabled: boolean) => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem("clashingQueensEnabled", JSON.stringify(enabled));
-  }
+export const setClashingQueensPreference = async (enabled: boolean) => {
+  await setSettingWithSync("clashingQueensEnabled", enabled);
 };
 
 export const getClashingQueensPreference = () => {
@@ -104,10 +119,8 @@ export const getClashingQueensPreference = () => {
   return safeParseLocalStorage("clashingQueensEnabled", true);
 };
 
-export const setShowInstructionsPreference = (enabled: boolean) => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem("showInstructions", JSON.stringify(enabled));
-  }
+export const setShowInstructionsPreference = async (enabled: boolean) => {
+  await setSettingWithSync("showInstructions", enabled);
 };
 
 export const getShowInstructionsPreference = () => {
@@ -115,10 +128,8 @@ export const getShowInstructionsPreference = () => {
   return safeParseLocalStorage("showInstructions", true);
 };
 
-export const setShowClockPreference = (enabled: boolean) => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem("showClock", JSON.stringify(enabled));
-  }
+export const setShowClockPreference = async (enabled: boolean) => {
+  await setSettingWithSync("showClock", enabled);
 };
 
 export const getShowClockPreference = () => {
@@ -126,10 +137,8 @@ export const getShowClockPreference = () => {
   return safeParseLocalStorage("showClock", true); // Default to true
 };
 
-export const setAutoPlaceXsPreference = (enabled: boolean) => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem("autoPlaceXs", JSON.stringify(enabled));
-  }
+export const setAutoPlaceXsPreference = async (enabled: boolean) => {
+  await setSettingWithSync("autoPlaceXs", enabled);
 };
 
 export const getAutoPlaceXsPreference = () => {
@@ -137,10 +146,8 @@ export const getAutoPlaceXsPreference = () => {
   return safeParseLocalStorage("autoPlaceXs", false); // Default to false
 };
 
-export const setGroupingPreference = (enabled: boolean) => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem("groupBySize", JSON.stringify(enabled));
-  }
+export const setGroupingPreference = async (enabled: boolean) => {
+  await setSettingWithSync("groupBySize", enabled);
 };
 
 export const getGroupingPreference = () => {
@@ -378,10 +385,8 @@ export const getPWAInstallBannerPreference = (): boolean => {
   return preference === null ? true : preference === 'true'; // Default to true (enabled)
 };
 
-export const setPWAInstallBannerPreference = (enabled: boolean): void => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem(PWA_INSTALL_BANNER_ENABLED_KEY, enabled.toString());
-  }
+export const setPWAInstallBannerPreference = async (enabled: boolean): Promise<void> => {
+  await setSettingWithSync(PWA_INSTALL_BANNER_ENABLED_KEY, enabled);
 };
 
 export const getPWAOfflineSupportPreference = (): boolean => {
@@ -390,10 +395,8 @@ export const getPWAOfflineSupportPreference = (): boolean => {
   return preference === null ? false : preference === 'true'; // Default to false (disabled)
 };
 
-export const setPWAOfflineSupportPreference = (enabled: boolean): void => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem(PWA_OFFLINE_SUPPORT_ENABLED_KEY, enabled.toString());
-  }
+export const setPWAOfflineSupportPreference = async (enabled: boolean): Promise<void> => {
+  await setSettingWithSync(PWA_OFFLINE_SUPPORT_ENABLED_KEY, enabled);
 };
 
 export const clearPWAInstallBannerDismissal = (): void => {
