@@ -3,7 +3,7 @@ name: Auto Add Daily Level
 on:
   schedule:
     # Run every day at 00:01 AM Pacific Time (08:01 UTC)
-    - cron: '1 0 * * *'
+    - cron: '2 8 * * *'
   workflow_dispatch: # Allow manual triggering for testing
 
 jobs:
