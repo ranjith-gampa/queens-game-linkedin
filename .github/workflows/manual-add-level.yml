@@ -1,0 +1,129 @@
+name: Add Level - Manual Trigger
+
+on:
+  workflow_dispatch:
+    inputs:
+      level_type:
+        description: 'Type of level to add'
+        required: true
+        default: 'regular'
+        type: choice
+        options:
+        - regular
+        - bonus
+      level_number:
+        description: 'Level number (only for regular levels)'
+        required: false
+        type: number
+      headless:
+        description: 'Run in headless mode'
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  add-level:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Install Playwright browsers
+      run: npx playwright install chromium
+
+    - name: Install tsx for TypeScript execution
+      run: npm install -g tsx
+
+    - name: Validate inputs
+      run: |
+        level_type="${{ github.event.inputs.level_type }}"
+        level_number="${{ github.event.inputs.level_number }}"
+        
+        if [ "$level_type" = "regular" ] && [ -z "$level_number" ]; then
+          echo "Error: Level number is required for regular levels"
+          exit 1
+        fi
+
+    - name: Add regular level
+      if: github.event.inputs.level_type == 'regular'
+      run: |
+        level_number="${{ github.event.inputs.level_number }}"
+        headless="${{ github.event.inputs.headless }}"
+        echo "Adding regular level $level_number (headless: $headless)"
+        npx tsx ./scripts/addLevel.ts --level $level_number --headless=$headless
+
+    - name: Add bonus level
+      if: github.event.inputs.level_type == 'bonus'
+      run: |
+        headless="${{ github.event.inputs.headless }}"
+        echo "Adding bonus level (headless: $headless)"
+        npx tsx ./scripts/addLevel.ts --bonus --headless=$headless
+
+    - name: Check for changes
+      id: changes
+      run: |
+        if git diff --quiet && git diff --cached --quiet; then
+          echo "has_changes=false" >> $GITHUB_OUTPUT
+          echo "No changes detected"
+        else
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+          echo "Changes detected"
+        fi
+
+    - name: Commit and push changes
+      if: steps.changes.outputs.has_changes == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        level_type="${{ github.event.inputs.level_type }}"
+        
+        if [ "$level_type" = "bonus" ]; then
+          commit_message="Manually add bonus level"
+        else
+          level_number="${{ github.event.inputs.level_number }}"
+          commit_message="Manually add level $level_number"
+        fi
+        
+        git add .
+        git commit -m "$commit_message"
+        git push
+
+    - name: Upload debug artifacts on failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: debug-artifacts
+        path: |
+          debug-*.png
+          debug-*.html
+        retention-days: 7
+
+    - name: Summary
+      run: |
+        level_type="${{ github.event.inputs.level_type }}"
+        has_changes="${{ steps.changes.outputs.has_changes }}"
+        
+        if [ "$has_changes" = "true" ]; then
+          if [ "$level_type" = "bonus" ]; then
+            echo "✅ Successfully added bonus level"
+          else
+            level_number="${{ github.event.inputs.level_number }}"
+            echo "✅ Successfully added level $level_number"
+          fi
+        else
+          echo "ℹ️ No changes were made - level may already exist"
+        fi

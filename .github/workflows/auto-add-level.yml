@@ -1,0 +1,176 @@
+name: Auto Add Daily Level
+
+on:
+  schedule:
+    # Run every day at 00:00 AM Pacific Time (08:00 UTC)
+    - cron: '0 8 * * *'
+  workflow_dispatch: # Allow manual triggering for testing
+
+jobs:
+  add-level:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15 # Prevent hanging jobs
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Install Playwright browsers
+      run: npx playwright install chromium
+
+    - name: Install tsx for TypeScript execution
+      run: npm install -g tsx
+
+    - name: Get current date for level calculation
+      id: date
+      run: |
+        # Get current date in Pacific timezone
+        current_date=$(TZ=America/Los_Angeles date +%Y-%m-%d)
+        echo "current_date=$current_date" >> $GITHUB_OUTPUT
+        
+        # Calculate day of week (0=Sunday, 1=Monday, etc.)
+        day_of_week=$(TZ=America/Los_Angeles date +%w)
+        echo "day_of_week=$day_of_week" >> $GITHUB_OUTPUT
+
+    - name: Add level using enhanced script
+      id: add_level
+      run: |
+        # Make the script executable
+        chmod +x ./scripts/automate-level.sh
+        
+        # Run the automation script and capture output
+        ./scripts/automate-level.sh auto 2>&1 | tee automation.log
+        
+        # Extract information from the log for later steps
+        if grep -q "regular level" automation.log; then
+          level_number=$(grep "regular level" automation.log | grep -o '[0-9]\+' | tail -1)
+          echo "level_type=regular" >> $GITHUB_OUTPUT
+          echo "level_number=$level_number" >> $GITHUB_OUTPUT
+        elif grep -q "bonus level" automation.log; then
+          current_date=$(TZ=America/Los_Angeles date +%Y-%m-%d)
+          echo "level_type=bonus" >> $GITHUB_OUTPUT
+          echo "current_date=$current_date" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Check for changes
+      id: changes
+      run: |
+        if git diff --quiet && git diff --cached --quiet; then
+          echo "has_changes=false" >> $GITHUB_OUTPUT
+          echo "No changes detected"
+        else
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+          echo "Changes detected"
+        fi
+
+    - name: Commit and push changes
+      if: steps.changes.outputs.has_changes == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        level_type="${{ steps.add_level.outputs.level_type }}"
+        current_date="${{ steps.date.outputs.current_date }}"
+        
+        if [ "$level_type" = "bonus" ]; then
+          commit_message="Auto-add bonus level for $current_date"
+        else
+          level_number="${{ steps.add_level.outputs.level_number }}"
+          commit_message="Auto-add level $level_number for $current_date"
+        fi
+        
+        git add .
+        git commit -m "$commit_message"
+        git push
+
+    - name: Upload debug artifacts on failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: debug-artifacts-${{ github.run_number }}
+        path: |
+          debug-*.png
+          debug-*.html
+          scripts/*.png
+          automation.log
+        retention-days: 7
+
+    - name: Create issue on failure
+      if: failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const level_type = '${{ steps.add_level.outputs.level_type }}';
+          const current_date = '${{ steps.date.outputs.current_date }}';
+          const level_number = '${{ steps.add_level.outputs.level_number }}';
+          
+          let title, body;
+          if (level_type === 'bonus') {
+            title = `Failed to auto-add bonus level for ${current_date}`;
+            body = `The automated bonus level addition failed for ${current_date}.\n\nPlease check the workflow logs and debug artifacts.`;
+          } else {
+            title = `Failed to auto-add level ${level_number} for ${current_date}`;
+            body = `The automated level ${level_number} addition failed for ${current_date}.\n\nPlease check the workflow logs and debug artifacts.`;
+          }
+          
+          await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: title,
+            body: body + `\n\n**Workflow run:** https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+            labels: ['automation', 'bug']
+          });
+
+    - name: Create PR instead of direct push (alternative approach)
+      if: false # Set to true if you prefer PR workflow
+      run: |
+        level_type="${{ steps.add_level.outputs.level_type }}"
+        current_date="${{ steps.date.outputs.current_date }}"
+        
+        if [ "$level_type" = "bonus" ]; then
+          branch_name="auto-add-bonus-level-$current_date"
+          pr_title="Auto-add bonus level for $current_date"
+        else
+          level_number="${{ steps.add_level.outputs.level_number }}"
+          branch_name="auto-add-level-$level_number-$current_date"
+          pr_title="Auto-add level $level_number for $current_date"
+        fi
+        
+        git checkout -b "$branch_name"
+        git add .
+        git commit -m "$pr_title"
+        git push origin "$branch_name"
+        
+        # Create PR using GitHub CLI
+        gh pr create --title "$pr_title" --body "Automatically generated level for $current_date" --head "$branch_name" --base main
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Summary
+      run: |
+        level_type="${{ steps.add_level.outputs.level_type }}"
+        current_date="${{ steps.date.outputs.current_date }}"
+        has_changes="${{ steps.changes.outputs.has_changes }}"
+        
+        if [ "$has_changes" = "true" ]; then
+          if [ "$level_type" = "bonus" ]; then
+            echo "✅ Successfully added bonus level for $current_date"
+          else
+            level_number="${{ steps.add_level.outputs.level_number }}"
+            echo "✅ Successfully added level $level_number for $current_date"
+          fi
+        else
+          echo "ℹ️ No changes were made - level may already exist"
+        fi
