@@ -64,6 +64,7 @@
     "add:auto": "./scripts/automate-level.sh auto",
     "add:auto:visible": "./scripts/automate-level.sh auto \"\" false",
     "test:automation": "./scripts/test-automation.sh",
+    "test:server": "./scripts/test-server-automation.sh",
     "expo": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
