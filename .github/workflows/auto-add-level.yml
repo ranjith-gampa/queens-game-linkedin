@@ -2,14 +2,17 @@ name: Auto Add Daily Level
 
 on:
   schedule:
-    # Run every day at 00:01 AM Pacific Time (07:01 UTC)
-    - cron: '10 7 * * *'
+    # Run every day at 00:00 AM Pacific Time
+    # Pacific Time is UTC-8 (PST) or UTC-7 (PDT)
+    # Using 07:00 UTC to target midnight Pacific during daylight saving time (PDT)
+    # During standard time (PST), this will be 11:00 PM PST (previous day)
+    - cron: '0 7 * * *'
   workflow_dispatch: # Allow manual triggering for testing
 
 jobs:
   add-level:
     runs-on: ubuntu-latest
-    timeout-minutes: 15 # Prevent hanging jobs
+    timeout-minutes: 30 # Increased timeout for server startup and level creation
     
     steps:
     - name: Checkout repository
@@ -33,16 +36,62 @@ jobs:
     - name: Install tsx for TypeScript execution
       run: npm install -g tsx
 
+    - name: Start development server
+      run: |
+        echo "🚀 Starting development server in background..."
+        npm run start &
+        SERVER_PID=$!
+        echo "SERVER_PID=$SERVER_PID" >> $GITHUB_ENV
+        echo "📝 Server PID: $SERVER_PID"
+        
+        # Wait for server to be ready
+        echo "⏳ Waiting for server to start..."
+        timeout=120
+        while [ $timeout -gt 0 ]; do
+          if curl -s http://localhost:3000 > /dev/null 2>&1; then
+            echo "✅ Server is ready!"
+            echo "🌐 Testing server response..."
+            curl -s -I http://localhost:3000 | head -1
+            break
+          fi
+          echo "⏱️  Waiting for server... ($timeout seconds remaining)"
+          # Show what processes are running on port 3000
+          if [ $((timeout % 20)) -eq 0 ]; then
+            echo "🔍 Checking for processes on port 3000..."
+            netstat -tlnp 2>/dev/null | grep :3000 || echo "No processes found on port 3000"
+          fi
+          sleep 3
+          timeout=$((timeout - 3))
+        done
+        
+        if [ $timeout -le 0 ]; then
+          echo "❌ Server failed to start within 120 seconds"
+          echo "🔍 Final process check..."
+          ps aux | grep -E "(vite|node)" | grep -v grep || echo "No vite/node processes found"
+          netstat -tlnp 2>/dev/null | grep :3000 || echo "No processes on port 3000"
+          exit 1
+        fi
+
     - name: Get current date for level calculation
       id: date
       run: |
+        echo "🕐 Workflow started at: $(date -u)"
+        echo "🌍 UTC time: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+        
         # Get current date in Pacific timezone
         current_date=$(TZ=America/Los_Angeles date +%Y-%m-%d)
+        echo "📅 Pacific date: $current_date"
         echo "current_date=$current_date" >> $GITHUB_OUTPUT
         
         # Calculate day of week (0=Sunday, 1=Monday, etc.)
         day_of_week=$(TZ=America/Los_Angeles date +%w)
+        day_name=$(TZ=America/Los_Angeles date +%A)
+        echo "📆 Day of week: $day_name ($day_of_week)"
         echo "day_of_week=$day_of_week" >> $GITHUB_OUTPUT
+        
+        # Show Pacific time
+        pacific_time=$(TZ=America/Los_Angeles date '+%Y-%m-%d %H:%M:%S %Z')
+        echo "🕐 Pacific time: $pacific_time"
 
     - name: Add level using enhanced script
       id: add_level
@@ -194,4 +243,18 @@ jobs:
           fi
         else
           echo "ℹ️ No changes were made - level may already exist"
+        fi
+
+    - name: Stop development server
+      if: always()
+      run: |
+        if [ -n "$SERVER_PID" ] && kill -0 "$SERVER_PID" 2>/dev/null; then
+          echo "🛑 Stopping development server (PID: $SERVER_PID)"
+          kill "$SERVER_PID" || true
+          # Wait a moment for graceful shutdown
+          sleep 2
+          # Force kill if still running
+          kill -9 "$SERVER_PID" 2>/dev/null || true
+        else
+          echo "ℹ️ Development server was not running or already stopped"
         fi

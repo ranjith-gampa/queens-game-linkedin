@@ -16,13 +16,15 @@ The project now includes automated level addition that runs daily at 00:00 AM Pa
 ### 1. GitHub Actions Workflows
 
 #### `auto-add-level.yml`
-- **Trigger**: Daily at 00:00 AM Pacific Time (08:00 UTC)
+- **Trigger**: Daily at 00:00 AM Pacific Time (07:00 UTC)
 - **Purpose**: Automatically add new levels based on the day of the week
 - **Features**:
   - Smart detection of level type (regular vs bonus)
+  - Automatic development server startup
   - Duplicate level detection
   - Error handling with issue creation
   - Debug artifact collection
+  - Proper server cleanup
 
 #### `manual-add-level.yml`
 - **Trigger**: Manual workflow dispatch
@@ -57,6 +59,12 @@ The automation runs automatically every day at midnight Pacific Time. No manual 
 
 #### Via npm scripts:
 ```bash
+# Test the automation system
+npm run test:automation
+
+# Test server startup and accessibility  
+npm run test:server
+
 # Auto-determine level type (regular on weekdays, bonus on Sundays)
 npm run add:auto
 
