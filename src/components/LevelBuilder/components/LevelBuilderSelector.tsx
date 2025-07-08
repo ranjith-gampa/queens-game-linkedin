@@ -19,7 +19,7 @@ const LevelBuilderSelector = ({
   };
 
   return (
-    <div className="max-w-lg">
+    <div className="max-w-lg" data-testid="level-builder-selector">
       <p className="mb-1">
         {t("LEVEL_TYPE")} <Required />
       </p>

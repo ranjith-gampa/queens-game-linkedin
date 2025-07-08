@@ -184,18 +184,51 @@ async function captureScreenshot(
 
 async function navigateToLevelBuilder(page: Page): Promise<void> {
   console.log("Navigating to level builder...");
-  await page.goto("http://localhost:3000/level-builder?skipWelcome=true", {
-    waitUntil: "domcontentloaded",
-  });
   
-  // Wait for the page to fully render
-  console.log("Waiting for level builder to load...");
-  await page.waitForLoadState('networkidle');
-  
-  // Wait for React components to mount
-  await page.waitForTimeout(3000);
-  
-  console.log("Level builder loaded successfully");
+  try {
+    await page.goto("http://localhost:3000/level-builder?skipWelcome=true", {
+      waitUntil: "domcontentloaded",
+      timeout: 30000
+    });
+    
+    // Wait for the page to fully render
+    console.log("Waiting for level builder to load...");
+    await page.waitForLoadState('networkidle', { timeout: 30000 });
+    
+    // Wait extra time for React components to mount
+    await page.waitForTimeout(5000);
+    
+    // Verify the page loaded correctly by checking for the main heading
+    console.log("Verifying page load...");
+    const headingExists = await page.locator('h1:has-text("Level Builder")').count();
+    console.log("Level Builder heading found:", headingExists);
+    
+    if (headingExists === 0) {
+      // Take a screenshot to see what's on the page
+      await page.screenshot({ path: "debug-level-builder-page.png", fullPage: true });
+      console.log("Debug screenshot saved as debug-level-builder-page.png");
+      
+      // Check the current URL
+      const currentUrl = page.url();
+      console.log("Current URL:", currentUrl);
+      
+      // Check page title
+      const pageTitle = await page.title();
+      console.log("Page title:", pageTitle);
+      
+      throw new Error("Level Builder page did not load correctly - heading not found");
+    }
+    
+    console.log("Level builder loaded successfully");
+  } catch (error) {
+    console.log("Error navigating to level builder:", error instanceof Error ? error.message : String(error));
+    
+    // Take a debug screenshot
+    await page.screenshot({ path: "debug-navigation-failure.png", fullPage: true });
+    console.log("Debug screenshot saved as debug-navigation-failure.png");
+    
+    throw error;
+  }
 }
 
 async function uploadScreenshot(
@@ -262,17 +295,34 @@ async function selectLinkedInButton(page: Page): Promise<void> {
     await page.waitForLoadState('domcontentloaded');
     await page.waitForLoadState('networkidle');
     
-    // Wait a bit for React components to render
-    await page.waitForTimeout(2000);
+    // Wait longer for React components to render
+    console.log("Waiting for React components to render...");
+    await page.waitForTimeout(5000);
     
-    // Check if the button exists
-    console.log("Looking for LinkedIn button...");
-    const buttonExists = await page.locator('[data-testid="linkedin-button"]').count();
-    console.log("LinkedIn button count:", buttonExists);
+    // Check if the LevelBuilderSelector component is in the DOM
+    console.log("Checking for LevelBuilderSelector component...");
+    const selectorExists = await page.locator('[data-testid="level-builder-selector"]').count();
+    console.log("LevelBuilderSelector count:", selectorExists);
     
-    if (buttonExists === 0) {
+    // Check if the button exists with different selectors
+    console.log("Looking for LinkedIn button with different selectors...");
+    const linkedinButtonCount = await page.locator('[data-testid="linkedin-button"]').count();
+    console.log("LinkedIn button count (data-testid):", linkedinButtonCount);
+    
+    const linkedinButtonTextCount = await page.locator('button:has-text("LinkedIn")').count();
+    console.log("LinkedIn button count (text):", linkedinButtonTextCount);
+    
+    // Try to find any buttons on the page
+    const allButtons = await page.locator('button').count();
+    console.log("Total buttons on page:", allButtons);
+    
+    // Get all button texts for debugging
+    const buttonTexts = await page.locator('button').allTextContents();
+    console.log("All button texts:", buttonTexts);
+    
+    if (linkedinButtonCount === 0 && linkedinButtonTextCount === 0) {
       // Take a debug screenshot to see the current state
-      await page.screenshot({ path: "debug-no-linkedin-button.png" });
+      await page.screenshot({ path: "debug-no-linkedin-button.png", fullPage: true });
       console.log("Debug screenshot saved as debug-no-linkedin-button.png");
       
       // Save HTML for debugging
@@ -280,17 +330,39 @@ async function selectLinkedInButton(page: Page): Promise<void> {
       await fs.writeFile("debug-no-linkedin-button.html", htmlContent);
       console.log("Debug HTML saved as debug-no-linkedin-button.html");
       
-      throw new Error("LinkedIn button not found in DOM");
+      // Try to wait longer and check again
+      console.log("Waiting an additional 10 seconds for UI to load...");
+      await page.waitForTimeout(10000);
+      
+      const retryCount = await page.locator('[data-testid="linkedin-button"]').count();
+      console.log("LinkedIn button count after additional wait:", retryCount);
+      
+      if (retryCount === 0) {
+        throw new Error("LinkedIn button not found in DOM after extended wait");
+      }
     }
     
-    // Wait for the button to be visible and click it
-    const button = await page.waitForSelector(
-      '[data-testid="linkedin-button"]',
-      {
-        timeout: 15000,
-        state: 'visible'
-      }
-    );
+    // Try the primary selector first
+    let button;
+    if (linkedinButtonCount > 0) {
+      console.log("Using data-testid selector...");
+      button = await page.waitForSelector(
+        '[data-testid="linkedin-button"]',
+        {
+          timeout: 15000,
+          state: 'visible'
+        }
+      );
+    } else {
+      console.log("Using text-based selector...");
+      button = await page.waitForSelector(
+        'button:has-text("LinkedIn")',
+        {
+          timeout: 15000,
+          state: 'visible'
+        }
+      );
+    }
     
     console.log("LinkedIn button found, clicking...");
     await button.click();
@@ -305,7 +377,7 @@ async function selectLinkedInButton(page: Page): Promise<void> {
     );
     
     // Take a debug screenshot
-    await page.screenshot({ path: "debug-linkedin-selection-failure.png" });
+    await page.screenshot({ path: "debug-linkedin-selection-failure.png", fullPage: true });
     console.log("Debug screenshot saved as debug-linkedin-selection-failure.png");
     
     throw error;
