@@ -36,6 +36,9 @@ jobs:
     - name: Install tsx for TypeScript execution
       run: npm install -g tsx
 
+    - name: Install xvfb for headless display
+      run: sudo apt-get update && sudo apt-get install -y xvfb
+
     - name: Start development server
       run: |
         echo "🚀 Starting development server in background..."
@@ -105,7 +108,7 @@ jobs:
         
         # Try the dev server approach first
         echo "🚀 Attempting level addition with dev server..."
-        if ./scripts/automate-level.sh auto "" false 2>&1 | tee automation.log; then
+        if xvfb-run -a ./scripts/automate-level.sh auto "" false 2>&1 | tee automation.log; then
           echo "✅ Dev server automation succeeded"
           automation_method="dev-server"
         else
@@ -120,7 +123,7 @@ jobs:
           
           # Try with production build
           echo "🏗️ Attempting level addition with production build..."
-          ./scripts/automate-level-production.sh auto "" false 2>&1 | tee automation-production.log
+          xvfb-run -a ./scripts/automate-level-production.sh auto "" false 2>&1 | tee automation-production.log
           automation_method="production-build"
           # Use the production log for extracting information
           cp automation-production.log automation.log
