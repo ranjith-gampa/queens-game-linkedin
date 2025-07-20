@@ -1,0 +1,53 @@
+import {
+  altoMain,
+  anakiwa,
+  bittersweet,
+  celadon,
+  chardonnay,
+  halfBaked,
+  lightOrchid,
+  lightWisteria,
+  nomad,
+  saharaSand,
+} from "../colors";
+
+const level446 = {
+  size: 20,
+  colorRegions: [
+    ["A", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "C", "C", "D", "D", "C"],
+    ["A", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B", "C", "C", "D", "D", "C"],
+    ["A", "B", "B", "A", "A", "B", "B", "B", "B", "B", "B", "E", "E", "C", "C", "D", "D", "C"],
+    ["A", "B", "B", "A", "A", "B", "B", "B", "B", "B", "B", "E", "E", "C", "C", "D", "D", "C"],
+    ["A", "A", "A", "A", "A", "B", "B", "E", "E", "E", "E", "E", "E", "C", "C", "C", "C", "C"],
+    ["A", "A", "A", "A", "A", "B", "B", "E", "E", "E", "E", "E", "E", "C", "C", "C", "C", "C"],
+    ["B", "B", "B", "A", "A", "B", "B", "B", "B", "E", "E", "E", "E", "E", "E", "E", "E", "C"],
+    ["B", "B", "B", "A", "A", "B", "B", "B", "B", "E", "E", "E", "E", "E", "E", "E", "E", "C"],
+    ["F", "B", "B", "B", "B", "B", "B", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E"],
+    ["F", "B", "B", "B", "B", "B", "B", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E"],
+    ["F", "F", "F", "F", "F", "F", "F", "F", "F", "E", "E", "E", "E", "E", "E", "E", "E", "E"],
+    ["F", "F", "F", "F", "F", "F", "F", "F", "F", "E", "E", "E", "E", "E", "E", "E", "E", "E"],
+    ["G", "F", "F", "G", "G", "F", "F", "E", "E", "E", "E", "H", "H", "E", "E", "E", "E", "E"],
+    ["G", "F", "F", "G", "G", "F", "F", "E", "E", "E", "E", "H", "H", "E", "E", "E", "E", "E"],
+    ["G", "G", "G", "G", "G", "F", "F", "E", "E", "E", "E", "H", "H", "E", "E", "H", "H", "E"],
+    ["G", "G", "G", "G", "G", "F", "F", "E", "E", "E", "E", "H", "H", "E", "E", "H", "H", "E"],
+    ["I", "I", "I", "G", "G", "F", "F", "E", "E", "E", "E", "H", "H", "H", "H", "H", "H", "H"],
+    ["I", "I", "I", "G", "G", "F", "F", "E", "E", "E", "E", "H", "H", "H", "H", "H", "H", "H"],
+    ["I", "I", "I", "G", "G", "F", "F", "E", "E", "E", "E", "E", "E", "E", "E", "H", "H", "J"],
+    ["I", "I", "I", "G", "G", "F", "F", "E", "E", "E", "E", "E", "E", "E", "E", "H", "H", "J"],
+  ],
+  regionColors: {
+    A: bittersweet,
+    B: anakiwa,
+    C: chardonnay,
+    D: celadon,
+    E: lightOrchid,
+    F: halfBaked,
+    G: saharaSand,
+    H: nomad,
+    I: altoMain,
+    J: lightWisteria,
+  },
+  isNew: true,
+};
+
+export default level446;
