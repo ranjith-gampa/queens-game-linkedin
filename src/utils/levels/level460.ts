@@ -12,12 +12,10 @@ import {
 } from "../colors";
 
 const level460 = {
-  size: 12,
+  size: 10,
   colorRegions: [
     ["A", "A", "A", "A", "A", "A", "A", "A", "B", "B"],
     ["A", "A", "C", "A", "A", "A", "D", "B", "B", "E"],
-    ["A", "A", "C", "A", "A", "A", "D", "B", "B", "E"],
-    ["A", "A", "C", "A", "A", "A", "D", "B", "E", "E"],
     ["A", "A", "C", "A", "A", "A", "D", "B", "E", "E"],
     ["A", "A", "C", "A", "A", "A", "D", "B", "E", "E"],
     ["F", "F", "C", "A", "A", "D", "D", "G", "G", "G"],
