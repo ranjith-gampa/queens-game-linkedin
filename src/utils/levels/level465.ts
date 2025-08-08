@@ -12,14 +12,14 @@ import {
 const level465 = {
   size: 8,
   colorRegions: [
-    ["A", "A", "A", "A", "A", "A", "B", "B", "B", "B", "B", "B", "B", "B", "B", "B"],
-    ["A", "A", "C", "C", "A", "A", "B", "B", "A", "A", "A", "A", "A", "A", "B", "B"],
-    ["A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "D", "D", "D", "D", "B", "B"],
-    ["E", "E", "E", "E", "A", "A", "A", "A", "D", "D", "D", "D", "F", "F", "B", "B"],
-    ["E", "E", "A", "A", "A", "A", "G", "G", "G", "G", "H", "H", "F", "F", "B", "B"],
-    ["E", "E", "A", "A", "G", "G", "G", "G", "H", "H", "H", "H", "F", "F", "B", "B"],
-    ["E", "E", "A", "A", "G", "G", "E", "E", "E", "E", "F", "F", "F", "F", "B", "B"],
-    ["E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E"],
+    ["A", "A", "A", "B", "B", "B", "B", "B"],
+    ["A", "C", "A", "B", "A", "A", "A", "B"],
+    ["A", "A", "A", "A", "A", "D", "D", "B"],
+    ["E", "E", "A", "A", "D", "D", "F", "B"],
+    ["E", "A", "A", "G", "G", "H", "F", "B"],
+    ["E", "A", "G", "G", "H", "H", "F", "B"],
+    ["E", "A", "G", "E", "E", "F", "F", "B"],
+    ["E", "E", "E", "E", "E", "E", "E", "E"],
   ],
   regionColors: {
     A: lightWisteria,
@@ -31,6 +31,7 @@ const level465 = {
     G: saharaSand,
     H: nomad,
   },
+  isNew: true,
 };
 
 export default level465;
