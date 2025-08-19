@@ -4,9 +4,9 @@ on:
   schedule:
     # Run every day at 00:00 AM Pacific Time
     # Pacific Time is UTC-8 (PST) or UTC-7 (PDT)
-    # Using 06:50 UTC to target midnight Pacific during daylight saving time (PDT)
-    # During standard time (PST), this will be 10:50 PM PST (previous day)
-    - cron: '50 6 * * *'
+    # Using 06:56 UTC to target midnight Pacific during daylight saving time (PDT)
+    # During standard time (PST), this will be 10:56 PM PST (previous day)
+    - cron: '56 6 * * *'
   workflow_dispatch: # Allow manual triggering for testing
 
 jobs:
