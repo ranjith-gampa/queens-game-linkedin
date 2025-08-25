@@ -10,10 +10,11 @@ import {
   saharaSand,
 } from "../colors";
 
-const level481 = {
-  size: 9,
+const level482 = {
+  size: 10,
   colorRegions: [
     ["A", "A", "A", "A", "B", "C", "C", "C", "C"],
+    ["A", "D", "D", "A", "B", "B", "D", "D", "C"],
     ["A", "D", "D", "A", "B", "B", "D", "D", "C"],
     ["A", "D", "D", "D", "B", "D", "D", "D", "C"],
     ["A", "E", "D", "D", "D", "D", "D", "C", "C"],
@@ -34,6 +35,7 @@ const level481 = {
     H: nomad,
     I: anakiwa,
   },
+  isNew: true,
 };
 
-export default level481;
+export default level482;
