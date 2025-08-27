@@ -9,7 +9,7 @@ import {
   saharaSand,
 } from "../colors";
 
-const level483 = {
+const level484 = {
   size: 8,
   colorRegions: [
     ["A", "A", "B", "B", "B", "B", "C", "C"],
@@ -31,6 +31,7 @@ const level483 = {
     G: saharaSand,
     H: nomad,
   },
+  isNew: true,
 };
 
-export default level483;
+export default level484;
