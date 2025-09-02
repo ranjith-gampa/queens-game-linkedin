@@ -44,14 +44,4 @@ const level = {
   isNew: true,
 };
 
-export default level;    F: bittersweet,
-    G: saharaSand,
-    H: nomad,
-    I: lightOrchid,
-    J: halfBaked,
-    K: turquoiseBlue,
-  },
-  isNew: true,
-};
-
 export default level;
