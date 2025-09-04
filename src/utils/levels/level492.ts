@@ -11,10 +11,9 @@ import {
 } from "../colors";
 
 const level492 = {
-  size: 10,
+  size: 9,
   colorRegions: [
     ["A", "A", "A", "A", "A", "B", "B", "B", "A"],
-    ["A", "C", "C", "A", "A", "B", "B", "D", "A"],
     ["A", "C", "C", "A", "A", "B", "B", "D", "A"],
     ["A", "C", "C", "C", "A", "A", "D", "D", "A"],
     ["A", "E", "F", "A", "A", "A", "D", "D", "A"],
