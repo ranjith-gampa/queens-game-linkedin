@@ -1,0 +1,53 @@
+import {
+  altoMain,
+  anakiwa,
+  bittersweet,
+  celadon,
+  chardonnay,
+  halfBaked,
+  lightOrchid,
+  lightWisteria,
+  nomad,
+  saharaSand,
+} from "../colors";
+
+const level495 = {
+  size: 20,
+  colorRegions: [
+    ["A", "A", "A", "A", "B", "B", "C", "C", "C", "C", "C", "C", "D", "D", "E", "E", "E", "E", "E", "E"],
+    ["A", "A", "A", "A", "B", "B", "C", "C", "C", "C", "C", "C", "D", "D", "E", "E", "E", "E", "E", "E"],
+    ["A", "A", "F", "F", "B", "B", "C", "C", "G", "G", "C", "C", "D", "D", "D", "D", "H", "H", "E", "E"],
+    ["A", "A", "F", "F", "B", "B", "C", "C", "G", "G", "C", "C", "D", "D", "D", "D", "H", "H", "E", "E"],
+    ["A", "A", "F", "F", "B", "B", "C", "C", "G", "G", "G", "G", "G", "G", "D", "D", "H", "H", "E", "E"],
+    ["A", "A", "F", "F", "B", "B", "C", "C", "G", "G", "G", "G", "G", "G", "D", "D", "H", "H", "E", "E"],
+    ["A", "A", "F", "F", "C", "C", "C", "C", "I", "I", "I", "I", "G", "G", "D", "D", "H", "H", "E", "E"],
+    ["A", "A", "F", "F", "C", "C", "C", "C", "I", "I", "I", "I", "G", "G", "D", "D", "H", "H", "E", "E"],
+    ["A", "A", "F", "F", "C", "C", "F", "F", "I", "I", "G", "G", "G", "G", "H", "H", "H", "H", "E", "E"],
+    ["A", "A", "F", "F", "C", "C", "F", "F", "I", "I", "G", "G", "G", "G", "H", "H", "H", "H", "E", "E"],
+    ["A", "A", "F", "F", "F", "F", "F", "F", "I", "I", "H", "H", "H", "H", "H", "H", "E", "E", "E", "E"],
+    ["A", "A", "F", "F", "F", "F", "F", "F", "I", "I", "H", "H", "H", "H", "H", "H", "E", "E", "E", "E"],
+    ["A", "A", "A", "A", "A", "A", "A", "A", "I", "I", "I", "I", "I", "I", "I", "I", "E", "E", "J", "J"],
+    ["A", "A", "A", "A", "A", "A", "A", "A", "I", "I", "I", "I", "I", "I", "I", "I", "E", "E", "J", "J"],
+    ["J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "I", "I", "E", "E", "J", "J"],
+    ["J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "I", "I", "E", "E", "J", "J"],
+    ["J", "J", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "J", "J"],
+    ["J", "J", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "E", "J", "J"],
+    ["J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J"],
+    ["J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J", "J"],
+  ],
+  regionColors: {
+    A: lightWisteria,
+    B: chardonnay,
+    C: anakiwa,
+    D: celadon,
+    E: altoMain,
+    F: bittersweet,
+    G: saharaSand,
+    H: nomad,
+    I: lightOrchid,
+    J: halfBaked,
+  },
+  isNew: true,
+};
+
+export default level495;
