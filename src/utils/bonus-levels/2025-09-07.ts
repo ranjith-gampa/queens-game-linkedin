@@ -48,7 +48,6 @@ const level = {
     I: lightOrchid,
     J: halfBaked,
   },
-  isNew: true,
 };
 
 export default level;
