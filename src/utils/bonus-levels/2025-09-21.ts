@@ -48,7 +48,6 @@ const level = {
     I: lightOrchid,
     J: celadon,
   },
-  isNew: true,
 };
 
 export default level;
