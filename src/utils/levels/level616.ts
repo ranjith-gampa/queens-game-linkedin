@@ -28,7 +28,6 @@ const level616 = {
     F: bittersweet,
     G: lightWisteria,
   },
-  isNew: true,
 };
 
 export default level616;
