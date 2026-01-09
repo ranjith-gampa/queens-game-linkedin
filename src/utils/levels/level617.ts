@@ -28,7 +28,6 @@ const level617 = {
     F: celadon,
     G: lightWisteria,
   },
-  isNew: true,
 };
 
 export default level617;
