@@ -31,7 +31,6 @@ const level625 = {
     G: celadon,
     H: anakiwa,
   },
-  isNew: true,
 };
 
 export default level625;
