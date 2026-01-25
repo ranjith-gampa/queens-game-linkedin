@@ -34,7 +34,6 @@ const level633 = {
     H: anakiwa,
     I: bittersweet,
   },
-  isNew: true,
 };
 
 export default level633;
