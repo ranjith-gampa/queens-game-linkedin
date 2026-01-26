@@ -34,7 +34,6 @@ const level634 = {
     H: saharaSand,
     I: celadon,
   },
-  isNew: true,
 };
 
 export default level634;
