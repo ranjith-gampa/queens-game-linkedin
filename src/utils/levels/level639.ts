@@ -34,7 +34,6 @@ const level639 = {
     H: lightWisteria,
     I: saharaSand,
   },
-  isNew: true,
 };
 
 export default level639;
