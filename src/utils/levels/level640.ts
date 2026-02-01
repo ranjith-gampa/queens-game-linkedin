@@ -34,7 +34,6 @@ const level640 = {
     H: bittersweet,
     I: altoMain,
   },
-  isNew: true,
 };
 
 export default level640;
