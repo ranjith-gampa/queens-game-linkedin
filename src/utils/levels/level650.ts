@@ -28,7 +28,6 @@ const level650 = {
     F: altoMain,
     G: saharaSand,
   },
-  isNew: true,
 };
 
 export default level650;
