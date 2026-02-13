@@ -31,7 +31,6 @@ const level652 = {
     G: celadon,
     H: altoMain,
   },
-  isNew: true,
 };
 
 export default level652;
