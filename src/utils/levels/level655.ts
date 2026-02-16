@@ -34,7 +34,6 @@ const level655 = {
     H: celadon,
     I: chardonnay,
   },
-  isNew: true,
 };
 
 export default level655;

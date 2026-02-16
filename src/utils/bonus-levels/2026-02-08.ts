@@ -35,7 +35,6 @@ const level = {
     H: altoMain,
     I: bittersweet,
   },
-  isNew: true,
 };
 
 export default level;
