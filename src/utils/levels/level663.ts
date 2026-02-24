@@ -34,7 +34,6 @@ const level663 = {
     H: bittersweet,
     I: chardonnay,
   },
-  isNew: true,
 };
 
 export default level663;
