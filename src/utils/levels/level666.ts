@@ -31,7 +31,6 @@ const level666 = {
     G: bittersweet,
     H: altoMain,
   },
-  isNew: true,
 };
 
 export default level666;
