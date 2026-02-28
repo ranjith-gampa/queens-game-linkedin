@@ -28,7 +28,6 @@ const level667 = {
     F: bittersweet,
     G: saharaSand,
   },
-  isNew: true,
 };
 
 export default level667;
