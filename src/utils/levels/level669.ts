@@ -34,7 +34,6 @@ const level669 = {
     H: chardonnay,
     I: anakiwa,
   },
-  isNew: true,
 };
 
 export default level669;
