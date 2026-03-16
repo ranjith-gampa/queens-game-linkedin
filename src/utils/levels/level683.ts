@@ -34,7 +34,6 @@ const level683 = {
     H: nomad,
     I: celadon,
   },
-  isNew: true,
 };
 
 export default level683;
