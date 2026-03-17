@@ -28,7 +28,6 @@ const level684 = {
     F: saharaSand,
     G: celadon,
   },
-  isNew: true,
 };
 
 export default level684;
