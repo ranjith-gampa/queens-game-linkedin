@@ -28,7 +28,6 @@ const level685 = {
     F: chardonnay,
     G: lightWisteria,
   },
-  isNew: true,
 };
 
 export default level685;
