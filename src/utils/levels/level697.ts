@@ -34,7 +34,6 @@ const level697 = {
     H: bittersweet,
     I: saharaSand,
   },
-  isNew: true,
 };
 
 export default level697;
