@@ -28,7 +28,6 @@ const level706 = {
     F: anakiwa,
     G: altoMain,
   },
-  isNew: true,
 };
 
 export default level706;
