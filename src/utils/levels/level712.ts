@@ -31,7 +31,6 @@ const level712 = {
     G: altoMain,
     H: celadon,
   },
-  isNew: true,
 };
 
 export default level712;
