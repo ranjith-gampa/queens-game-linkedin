@@ -28,7 +28,6 @@ const level713 = {
     F: altoMain,
     G: lightWisteria,
   },
-  isNew: true,
 };
 
 export default level713;
