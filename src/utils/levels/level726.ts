@@ -28,7 +28,6 @@ const level726 = {
     F: chardonnay,
     G: bittersweet,
   },
-  isNew: true,
 };
 
 export default level726;
