@@ -723,6 +723,7 @@ import level729 from "./levels/level729";
 import level730 from "./levels/level730";
 import level731 from "./levels/level731";
 import level732 from "./levels/level732";
+import level733 from "./levels/level733";
 
 export const levels: { [key: string]: Level } = {
   level1,
@@ -1449,4 +1450,5 @@ export const levels: { [key: string]: Level } = {
   level730,
   level731,
   level732,
+  level733,
 };
