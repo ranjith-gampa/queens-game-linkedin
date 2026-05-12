@@ -28,7 +28,6 @@ const level740 = {
     F: bittersweet,
     G: lightWisteria,
   },
-  isNew: true,
 };
 
 export default level740;
