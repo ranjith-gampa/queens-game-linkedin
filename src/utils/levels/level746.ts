@@ -28,7 +28,6 @@ const level746 = {
     F: anakiwa,
     G: saharaSand,
   },
-  isNew: true,
 };
 
 export default level746;
