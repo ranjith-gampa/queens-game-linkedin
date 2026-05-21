@@ -31,7 +31,6 @@ const level748 = {
     G: chardonnay,
     H: lightWisteria,
   },
-  isNew: true,
 };
 
 export default level748;
