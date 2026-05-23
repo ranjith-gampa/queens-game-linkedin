@@ -34,7 +34,6 @@ const level750 = {
     H: nomad,
     I: chardonnay,
   },
-  isNew: true,
 };
 
 export default level750;
