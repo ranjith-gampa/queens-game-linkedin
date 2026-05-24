@@ -35,7 +35,6 @@ const level = {
     H: lightWisteria,
     I: celadon,
   },
-  isNew: true,
 };
 
 export default level;
