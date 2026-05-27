@@ -31,7 +31,6 @@ const level754 = {
     G: altoMain,
     H: saharaSand,
   },
-  isNew: true,
 };
 
 export default level754;
