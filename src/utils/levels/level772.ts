@@ -34,7 +34,6 @@ const level772 = {
     H: chardonnay,
     I: altoMain,
   },
-  isNew: true,
 };
 
 export default level772;
