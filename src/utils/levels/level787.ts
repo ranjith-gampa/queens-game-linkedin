@@ -34,7 +34,6 @@ const level787 = {
     H: anakiwa,
     I: altoMain,
   },
-  isNew: true,
 };
 
 export default level787;
