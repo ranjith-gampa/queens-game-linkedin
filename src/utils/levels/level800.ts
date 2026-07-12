@@ -34,7 +34,6 @@ const level800 = {
     H: saharaSand,
     I: lightOrchid,
   },
-  isNew: true,
 };
 
 export default level800;
