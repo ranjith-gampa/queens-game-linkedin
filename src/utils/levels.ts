@@ -795,6 +795,7 @@ import level801 from "./levels/level801";
 import level802 from "./levels/level802";
 import level803 from "./levels/level803";
 import level804 from "./levels/level804";
+import level805 from "./levels/level805";
 
 export const levels: { [key: string]: Level } = {
   level1,
@@ -1593,4 +1594,5 @@ export const levels: { [key: string]: Level } = {
   level802,
   level803,
   level804,
+  level805,
 };
