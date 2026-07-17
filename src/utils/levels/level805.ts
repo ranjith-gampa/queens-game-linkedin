@@ -34,7 +34,6 @@ const level805 = {
     H: altoMain,
     I: lightOrchid,
   },
-  isNew: true,
 };
 
 export default level805;
