@@ -34,7 +34,6 @@ const level807 = {
     H: altoMain,
     I: saharaSand,
   },
-  isNew: true,
 };
 
 export default level807;
