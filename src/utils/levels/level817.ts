@@ -31,7 +31,6 @@ const level817 = {
     G: saharaSand,
     H: chardonnay,
   },
-  isNew: true,
 };
 
 export default level817;
