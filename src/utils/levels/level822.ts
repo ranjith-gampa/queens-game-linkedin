@@ -34,7 +34,6 @@ const level822 = {
     H: lightOrchid,
     I: celadon,
   },
-  isNew: true,
 };
 
 export default level822;
