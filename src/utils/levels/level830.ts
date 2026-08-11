@@ -28,7 +28,6 @@ const level830 = {
     F: lightWisteria,
     G: saharaSand,
   },
-  isNew: true,
 };
 
 export default level830;
