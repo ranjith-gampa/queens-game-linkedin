@@ -34,7 +34,6 @@ const level834 = {
     H: altoMain,
     I: celadon,
   },
-  isNew: true,
 };
 
 export default level834;
