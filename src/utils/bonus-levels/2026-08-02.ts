@@ -35,7 +35,6 @@ const level = {
     H: celadon,
     I: nomad,
   },
-  isNew: true,
 };
 
 export default level;
