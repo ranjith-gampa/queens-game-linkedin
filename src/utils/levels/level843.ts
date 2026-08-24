@@ -34,7 +34,6 @@ const level843 = {
     H: lightOrchid,
     I: halfBaked,
   },
-  isNew: true,
 };
 
 export default level843;
