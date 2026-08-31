@@ -34,7 +34,6 @@ const level850 = {
     H: altoMain,
     I: bittersweet,
   },
-  isNew: true,
 };
 
 export default level850;
