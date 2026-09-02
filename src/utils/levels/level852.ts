@@ -28,7 +28,6 @@ const level852 = {
     F: bittersweet,
     G: celadon,
   },
-  isNew: true,
 };
 
 export default level852;
